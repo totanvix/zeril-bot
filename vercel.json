@@ -1,3 +1,3 @@
 {
-  "routes": [{ "src": "api/(.*)", "dest": "/api" , "methods":["GET","POST"]}]
+  "routes": [{ "src": "api/(.*)", "dest": "/api/index.go"}]
 }
