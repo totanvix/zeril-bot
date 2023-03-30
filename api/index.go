@@ -39,7 +39,7 @@ type TelegramData struct {
 
 func Router(w http.ResponseWriter, r *http.Request) {
 	router := chi.NewRouter()
-	router.Get("/api/hook", func(w http.ResponseWriter, r *http.Request) {
+	router.Post("/api/hook", func(w http.ResponseWriter, r *http.Request) {
 		var data TelegramData
 		err := json.NewDecoder(r.Body).Decode(&data)
 
