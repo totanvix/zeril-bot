@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"zeril-bot/api/quote"
+	"zeril-bot/utils/quote"
 
 	"github.com/go-chi/chi/v5"
 )

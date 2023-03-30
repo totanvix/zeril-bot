@@ -2,23 +2,27 @@ package quote
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"zeril-bot/api/telegram"
+	"zeril-bot/utils/telegram"
 )
 
 type QuoteData struct {
-	Quote string `json:"quote"`
+	Quote  string `json:"q"`
+	Author string `json:"a"`
 }
 
 func SendAQuote(chatId int) {
 	quote := getAQuote()
-	telegram.SendMessage(chatId, quote)
+	quoteFormat := fmt.Sprintf("&quot;%s&quot; - <b>%s</b>", quote.Quote, quote.Author)
+
+	telegram.SendMessage(chatId, quoteFormat)
 }
 
-func getAQuote() string {
-	res, err := http.Get("https://api.kanye.rest/")
+func getAQuote() QuoteData {
+	res, err := http.Get("https://zenquotes.io/api/random")
 
 	if err != nil {
 		log.Println(err)
@@ -28,12 +32,12 @@ func getAQuote() string {
 
 	body, err := ioutil.ReadAll(res.Body)
 
-	var data QuoteData
+	var data []QuoteData
 	err = json.Unmarshal(body, &data)
 
 	if err != nil {
 		log.Println(err)
 	}
 
-	return data.Quote
+	return data[0]
 }

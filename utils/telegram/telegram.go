@@ -22,6 +22,7 @@ func SendMessage(chatId int, message string) {
 	q := req.URL.Query()
 	q.Add("chat_id", strconv.Itoa(chatId))
 	q.Add("text", message)
+	q.Add("parse_mode", "html")
 
 	req.URL.RawQuery = q.Encode()
 
