@@ -40,6 +40,7 @@ type TelegramData struct {
 }
 
 func Router(w http.ResponseWriter, r *http.Request) {
+
 	var data TelegramData
 	err := json.NewDecoder(r.Body).Decode(&data)
 
@@ -53,6 +54,8 @@ func Router(w http.ResponseWriter, r *http.Request) {
 
 	command := arr[0]
 	args := arr[1:]
+
+	telegram.SetTypingAction(chatId)
 
 	switch command {
 	case "/quote":

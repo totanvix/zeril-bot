@@ -98,3 +98,39 @@ func SendAPhoto(chatId int, path string) {
 	}
 	fmt.Println(string(body))
 }
+
+func SetTypingAction(chatId int) {
+	uri := API_URL + "/sendChatAction"
+	req, err := http.NewRequest("GET", uri, nil)
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	q := req.URL.Query()
+	q.Add("chat_id", strconv.Itoa(chatId))
+	q.Add("action", "typing")
+
+	req.URL.RawQuery = q.Encode()
+
+	client := &http.Client{}
+
+	res, err := client.Do(req)
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	log.Println(string(body))
+}
