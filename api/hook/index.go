@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"zeril-bot/utils/lunar"
 	"zeril-bot/utils/quote"
 )
 
@@ -50,6 +51,8 @@ func Router(w http.ResponseWriter, r *http.Request) {
 	switch command {
 	case "/quote":
 		quote.SendAQuote(chatId)
+	case "/lunar":
+		lunar.SendLunarDateNow(chatId)
 	}
 }
 
