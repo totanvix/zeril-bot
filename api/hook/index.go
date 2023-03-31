@@ -7,7 +7,9 @@ import (
 	"strings"
 	"zeril-bot/utils/bitcoin"
 	"zeril-bot/utils/lunar"
+	"zeril-bot/utils/qr"
 	"zeril-bot/utils/quote"
+	"zeril-bot/utils/telegram"
 )
 
 type TelegramData struct {
@@ -47,7 +49,7 @@ func Router(w http.ResponseWriter, r *http.Request) {
 
 	chatId := data.Message.Chat.ID
 	text := data.Message.Text
-	command, _ := getCommandAndArgs(text)
+	command, args := getCommandAndArgs(text)
 
 	switch command {
 	case "/quote":
@@ -56,6 +58,13 @@ func Router(w http.ResponseWriter, r *http.Request) {
 		lunar.SendLunarDateNow(chatId)
 	case "/bitcoin":
 		bitcoin.SendBitcoinPrice(chatId)
+	case "/qr":
+		if len(args) == 0 {
+			telegram.SendMessage(chatId, "Sử dụng cú pháp <code>/qr &lt;nội dung&gt;</code> để tạo mã QR.")
+			return
+		}
+
+		qr.SendQRImage(chatId, args)
 	}
 }
 
