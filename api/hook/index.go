@@ -71,5 +71,5 @@ func Router(w http.ResponseWriter, r *http.Request) {
 func getCommandAndArgs(text string) (string, []string) {
 	arr := strings.Fields(text)
 
-	return arr[0], arr[1:]
+	return arr[0], arr[1:len(arr)]
 }
