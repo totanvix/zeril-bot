@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"zeril-bot/utils/bitcoin"
 	"zeril-bot/utils/lunar"
 	"zeril-bot/utils/quote"
 )
@@ -53,6 +54,8 @@ func Router(w http.ResponseWriter, r *http.Request) {
 		quote.SendAQuote(chatId)
 	case "/lunar":
 		lunar.SendLunarDateNow(chatId)
+	case "/bitcoin":
+		bitcoin.SendBitcoinPrice(chatId)
 	}
 }
 
