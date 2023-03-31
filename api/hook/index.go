@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"zeril-bot/utils/bitcoin"
@@ -50,7 +49,10 @@ func Router(w http.ResponseWriter, r *http.Request) {
 
 	chatId := data.Message.Chat.ID
 	text := data.Message.Text
-	command, args := getCommandAndArgs(text)
+	arr := strings.Fields(text)
+
+	command := arr[0]
+	args := arr[1:]
 
 	switch command {
 	case "/quote":
@@ -67,10 +69,4 @@ func Router(w http.ResponseWriter, r *http.Request) {
 
 		qr.SendQRImage(chatId, args)
 	}
-}
-
-func getCommandAndArgs(text string) (string, []string) {
-	arr := strings.Fields(text)
-	log.Println(arr)
-	return arr[0], arr[1:]
 }
