@@ -13,7 +13,7 @@ func SendQRImage(chatId int, args []string) {
 		return
 	}
 
-	path := "./qr.png"
+	path := "/tmp/qr.png"
 	err := qrcode.WriteFile(args[0], qrcode.Medium, 256, path)
 	if err != nil {
 		log.Fatalln(err)

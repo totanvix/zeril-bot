@@ -59,15 +59,17 @@ func SendAPhoto(chatId int, path string) {
 	payload := &bytes.Buffer{}
 	writer := multipart.NewWriter(payload)
 	writer.WriteField("chat_id", strconv.Itoa(chatId))
+
 	file, errFile2 := os.Open(path)
 	defer file.Close()
-	part2,
-		errFile2 := writer.CreateFormFile("photo", filepath.Base(path))
+
+	part2, errFile2 := writer.CreateFormFile("photo", filepath.Base(path))
 	_, errFile2 = io.Copy(part2, file)
 	if errFile2 != nil {
 		fmt.Println(errFile2)
 		return
 	}
+
 	err := writer.Close()
 	if err != nil {
 		fmt.Println(err)
