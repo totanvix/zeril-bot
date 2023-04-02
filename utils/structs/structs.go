@@ -1,4 +1,4 @@
-package utils
+package structs
 
 type Chat struct {
 	ID        int    `json:"id"`

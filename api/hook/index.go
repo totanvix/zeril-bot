@@ -6,22 +6,22 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"zeril-bot/utils"
 	"zeril-bot/utils/bitcoin"
 	"zeril-bot/utils/lunar"
 	"zeril-bot/utils/qr"
 	"zeril-bot/utils/quote"
+	"zeril-bot/utils/structs"
 	"zeril-bot/utils/telegram"
 	"zeril-bot/utils/weather"
 )
 
 func Router(w http.ResponseWriter, r *http.Request) {
 
-	var data utils.HookData
+	var data structs.HookData
 	err := json.NewDecoder(r.Body).Decode(&data)
 
 	if err != nil {
-		var callback utils.CallbackData
+		var callback structs.CallbackData
 		err := json.NewDecoder(r.Body).Decode(&callback)
 		if err != nil {
 			log.Fatalln(err.Error())
@@ -34,7 +34,7 @@ func Router(w http.ResponseWriter, r *http.Request) {
 	resolveCommand(data)
 }
 
-func resolveCommand(data utils.HookData) {
+func resolveCommand(data structs.HookData) {
 	name := data.Message.Chat.FirstName
 	username := data.Message.Chat.Username
 	chatId := data.Message.Chat.ID
@@ -67,7 +67,7 @@ func resolveCommand(data utils.HookData) {
 	}
 }
 
-func resolveCallback(callback utils.CallbackData) {
+func resolveCallback(callback structs.CallbackData) {
 	name := callback.CallbackQuery.Chat.FirstName
 	username := callback.CallbackQuery.Chat.Username
 	chatId := callback.CallbackQuery.Chat.ID
