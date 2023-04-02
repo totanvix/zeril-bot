@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -14,6 +15,16 @@ import (
 )
 
 var API_URL string = "https://api.telegram.org/bot" + os.Getenv("TELE_BOT_TOKEN")
+
+type Status struct {
+	Ok bool `json:"ok"`
+}
+
+type ResultError struct {
+	Ok          Status
+	ErrorCode   int    `json:"error_code"`
+	Description string `json:"description"`
+}
 
 func SendMessage(chatId int, message string) {
 	uri := API_URL + "/sendMessage"
@@ -49,7 +60,18 @@ func SendMessage(chatId int, message string) {
 		return
 	}
 
-	log.Println(string(body))
+	var status Status
+
+	err = json.Unmarshal(body, &status)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	if status.Ok == false {
+		log.Fatalln(string(body))
+	}
+
+	log.Println("SendMessage OK")
 }
 
 func SendAPhoto(chatId int, path string) {
@@ -93,10 +115,81 @@ func SendAPhoto(chatId int, path string) {
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var status Status
+
+	err = json.Unmarshal(body, &status)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	if status.Ok == false {
+		log.Fatalln(string(body))
+	}
+
+	log.Println("SendAPhoto OK")
+}
+
+type BodyReplyMarkup struct {
+	ReplyMarkup struct {
+		InlineKeyboard [][]ButtonCallback `json:"inline_keyboard"`
+	} `json:"reply_markup"`
+}
+
+type ButtonCallback struct {
+	Text         string `json:"text"`
+	CallbackData string `json:"callback_data"`
+}
+
+func SendMessageWithReplyMarkup(chatId int, message string, replyMark []ButtonCallback) {
+	uri := API_URL + "/sendMessage"
+
+	var markup BodyReplyMarkup
+	markup.ReplyMarkup.InlineKeyboard = append(markup.ReplyMarkup.InlineKeyboard, replyMark)
+	marshalled, err := json.Marshal(markup)
+
+	req, err := http.NewRequest("GET", uri, bytes.NewReader(marshalled))
+	req.Header.Add("Content-Type", "application/json")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	q := req.URL.Query()
+	q.Add("chat_id", strconv.Itoa(chatId))
+	q.Add("text", message)
+	q.Add("parse_mode", "html")
+
+	req.URL.RawQuery = q.Encode()
+
+	client := &http.Client{}
+
+	res, err := client.Do(req)
+	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(string(body))
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var status Status
+
+	err = json.Unmarshal(body, &status)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	if status.Ok == false {
+		log.Fatalln(string(body))
+	}
+
+	log.Println("SendMessageWithReplyMarkup OK")
 }
 
 func SetTypingAction(chatId int) {
@@ -128,9 +221,10 @@ func SetTypingAction(chatId int) {
 	body, err := ioutil.ReadAll(res.Body)
 
 	if err != nil {
-		log.Println(err)
-		return
+		log.Fatalln(err)
 	}
 
-	log.Println(string(body))
+	if body != nil {
+		log.Println("SetTypingAction OK")
+	}
 }
