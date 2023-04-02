@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 	"zeril-bot/utils/bitcoin"
@@ -48,6 +49,8 @@ func Router(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err.Error())
 	}
 
+	name := data.Message.From.FirstName
+	username := data.Message.From.Username
 	chatId := data.Message.Chat.ID
 	text := data.Message.Text
 	arr := strings.Fields(text)
@@ -57,7 +60,14 @@ func Router(w http.ResponseWriter, r *http.Request) {
 
 	telegram.SetTypingAction(chatId)
 
+	log.Println(fmt.Sprintf("Yêu cầu từ bạn %s(%s): %s", name, username, text))
+
 	switch command {
+	case "/start":
+		message := fmt.Sprintf("Xin chào %s \n\nGõ <code>/help</code> để xem danh sách các lệnh mà bot hỗ trợ nhé.\n\nBạn cũng có thể truy cập nhanh các chức năng bằng cách nhấn nút Menu bên dưới.", name)
+		telegram.SendMessage(chatId, message)
+	case "/help":
+		telegram.SendMessage(chatId, "<code>/help</code> - Danh sách câu lệnh được hỗ trợ\n\n<code>/quote</code> - Xem trích dẫn hay ngẫu nhiên\n\n<code>/lunar</code> - Xem ngày âm lịch hôm nay\n\n<code>/bitcoin</code> - Xem giá Bitcoin mới nhất\n\n<code>/qr</code> - Tạo mã QR\n\n<code>/weather</code> - Xem tình hình thời tiết các tỉnh")
 	case "/quote":
 		quote.SendAQuote(chatId)
 	case "/lunar":
@@ -66,10 +76,12 @@ func Router(w http.ResponseWriter, r *http.Request) {
 		bitcoin.SendBitcoinPrice(chatId)
 	case "/qr":
 		if len(args) == 0 {
-			telegram.SendMessage(chatId, "Sử dụng cú pháp <code>/qr &lt;nội dung&gt;</code> để tạo mã QR.")
+			telegram.SendMessage(chatId, "Sử dụng cú pháp <code>/qr nội dung viết liền, không khoảng cách</code> để tạo mã QR.")
 			return
 		}
 
 		qr.SendQRImage(chatId, args)
+	default:
+		telegram.SendMessage(chatId, "Tôi không hiểu câu lệnh của bạn !!!")
 	}
 }

@@ -17,7 +17,11 @@ func SendLunarDateNow(chatId int) {
 	m := strconv.Itoa(int(c.Lunar.GetMonth()))
 	y := strconv.Itoa(int(c.Lunar.GetYear()))
 
-	message := fmt.Sprintf("Âm lịch hôm nay là %s/%s/%s", d, m, y)
+	if len(m) == 1 {
+		m = "0" + m
+	}
+
+	message := fmt.Sprintf("Âm lịch hôm nay => %s/%s/%s", d, m, y)
 
 	telegram.SendMessage(chatId, message)
 }
