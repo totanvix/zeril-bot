@@ -7,19 +7,21 @@ type Chat struct {
 	Type      string `json:"type"`
 }
 
-type HookData struct {
-	Message struct {
-		Text string `json:"text"`
-		Chat Chat   `json:"chat"`
-	} `json:"message"`
-}
-
 type CallbackData struct {
 	CallbackQuery struct {
 		Chat Chat   `json:"chat"`
 		Text string `json:"text"`
 		Data string `json:"data"`
 	}
+}
+
+type HookData struct {
+	UpdateId int `json:"text"`
+	Message  struct {
+		Text string `json:"text"`
+		Chat Chat   `json:"chat"`
+	} `json:"message"`
+	CallbackQuery CallbackData `json:"callback_query"`
 }
 
 type Btc struct {

@@ -16,18 +16,15 @@ import (
 )
 
 func Router(w http.ResponseWriter, r *http.Request) {
-
 	var data structs.HookData
 	err := json.NewDecoder(r.Body).Decode(&data)
 
 	if err != nil {
-		var callback structs.CallbackData
-		err := json.NewDecoder(r.Body).Decode(&callback)
-		if err != nil {
-			log.Fatalln(err.Error())
-		}
+		log.Fatalln(err.Error())
+	}
 
-		resolveCallback(callback)
+	if data.CallbackQuery.CallbackQuery.Data != "" {
+		resolveCallback(data.CallbackQuery)
 		return
 	}
 
