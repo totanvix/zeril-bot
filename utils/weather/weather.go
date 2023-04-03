@@ -30,7 +30,7 @@ func SendForecastOfWeather(chatId int, text string) {
 	text = strings.TrimSpace(text)
 	arr := strings.Fields(text)
 	args := arr[1:]
-	fmt.Println(text, arr, args)
+
 	if len(args) == 0 {
 		SendSuggestForecast(chatId, args)
 		return

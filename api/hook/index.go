@@ -23,9 +23,8 @@ func Router(w http.ResponseWriter, r *http.Request) {
 		log.Fatalln(err.Error())
 	}
 
-	fmt.Println(data)
-	if data.CallbackQuery.CallbackQuery.Data != "" {
-		ResolveCallback(data.CallbackQuery)
+	if data.CallbackQuery.Data != "" {
+		ResolveCallback(data)
 		return
 	}
 
@@ -65,11 +64,11 @@ func ResolveCommand(data structs.HookData) {
 	}
 }
 
-func ResolveCallback(callback structs.CallbackData) {
-	name := callback.CallbackQuery.Chat.FirstName
-	username := callback.CallbackQuery.Chat.Username
-	chatId := callback.CallbackQuery.Chat.ID
-	text := callback.CallbackQuery.Text
+func ResolveCallback(callback structs.HookData) {
+	name := callback.CallbackQuery.Message.Chat.FirstName
+	username := callback.CallbackQuery.Message.Chat.Username
+	chatId := callback.CallbackQuery.Message.Chat.ID
+	text := callback.CallbackQuery.Message.Text
 	data := callback.CallbackQuery.Data
 
 	telegram.SetTypingAction(chatId)
