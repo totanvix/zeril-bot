@@ -38,3 +38,14 @@ type QuoteData struct {
 type TelegramStatus struct {
 	Ok bool `json:"ok"`
 }
+
+type WeatherData struct {
+	Name    string `json:"name"`
+	Weather []struct {
+		Description string `json:"description"`
+	} `json:"weather"`
+	Main struct {
+		Temp     float32 `json:"temp"`
+		Humidity int     `json:"humidity"`
+	} `json:"main"`
+}

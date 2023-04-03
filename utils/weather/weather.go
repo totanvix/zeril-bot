@@ -35,7 +35,7 @@ func SendForecastOfWeather(chatId int, text string) {
 		return
 	}
 
-	telegram.SendMessage(chatId, fmt.Sprintf("Thời tiết hiện tại ở <b>%s</b>\n\n🌡 Nhiệt độ: <b>%.2f°C</b>\n\n💧 Độ ẩm: <b>%.2f&#37;</b>\n\nℹ️ Tổng quan: %s", data.Name, data.Main.Temp, data.Main.Humidity, data.Weather[0].Description))
+	telegram.SendMessage(chatId, fmt.Sprintf("🏙 Thời tiết hiện tại ở <b>%s</b>\n\n🌡 Nhiệt độ: <b>%.2f°C</b>\n\n💧 Độ ẩm: <b>%v&#37;</b>\n\nℹ️ Tổng quan: %s", data.Name, data.Main.Temp, data.Main.Humidity, data.Weather[0].Description))
 
 	fmt.Println(data, err)
 }
