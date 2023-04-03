@@ -12,19 +12,10 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"zeril-bot/utils/structs"
 )
 
 var API_URL string = "https://api.telegram.org/bot" + os.Getenv("TELE_BOT_TOKEN")
-
-type Status struct {
-	Ok bool `json:"ok"`
-}
-
-type ResultError struct {
-	Ok          Status
-	ErrorCode   int    `json:"error_code"`
-	Description string `json:"description"`
-}
 
 func SendMessage(chatId int, message string) {
 	uri := API_URL + "/sendMessage"
@@ -60,7 +51,7 @@ func SendMessage(chatId int, message string) {
 		return
 	}
 
-	var status Status
+	var status structs.TelegramStatus
 
 	err = json.Unmarshal(body, &status)
 	if err != nil {
@@ -118,7 +109,7 @@ func SendAPhoto(chatId int, path string) {
 		log.Fatalln(err)
 	}
 
-	var status Status
+	var status structs.TelegramStatus
 
 	err = json.Unmarshal(body, &status)
 	if err != nil {
@@ -178,7 +169,7 @@ func SendMessageWithReplyMarkup(chatId int, message string, replyMark []ButtonCa
 		log.Fatalln(err)
 	}
 
-	var status Status
+	var status structs.TelegramStatus
 
 	err = json.Unmarshal(body, &status)
 	if err != nil {

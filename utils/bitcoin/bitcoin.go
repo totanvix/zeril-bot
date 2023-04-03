@@ -7,19 +7,11 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"zeril-bot/utils/structs"
 	"zeril-bot/utils/telegram"
 
 	"github.com/leekchan/accounting"
 )
-
-type Btc struct {
-	Symbol string `json:"symbol"`
-	Price  string `json:"price"`
-}
-
-type Exchange struct {
-	Result float64 `json:"result"`
-}
 
 func SendBitcoinPrice(chatId int) {
 	acUsd := accounting.Accounting{Symbol: "$", Precision: 2}
@@ -37,7 +29,7 @@ func SendBitcoinPrice(chatId int) {
 	telegram.SendMessage(chatId, message)
 }
 
-func getBitcoinPrice() Btc {
+func getBitcoinPrice() structs.Btc {
 	res, err := http.Get("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT")
 
 	if err != nil {
@@ -52,7 +44,7 @@ func getBitcoinPrice() Btc {
 		log.Fatalln(err)
 	}
 
-	var data Btc
+	var data structs.Btc
 
 	err = json.Unmarshal(body, &data)
 	if err != nil {
@@ -78,7 +70,7 @@ func exchangeUsdToVnd(p float64) float64 {
 		log.Fatalln(err)
 	}
 
-	var data Exchange
+	var data structs.Exchange
 
 	err = json.Unmarshal(body, &data)
 	if err != nil {

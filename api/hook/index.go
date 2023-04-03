@@ -78,12 +78,13 @@ func resolveCallback(callback structs.CallbackData) {
 
 	log.Println(fmt.Sprintf("Yêu cầu từ bạn %s(%s): %s, callback data: %s", name, username, text, data))
 
-	// command := arr[0]
-	// args := arr[1:]
+	arr := strings.Fields(data)
+	command := arr[0]
 
-	// switch command {
-
-	// }
+	switch command {
+	case "/weather":
+		weather.SendForecastOfWeather(chatId, data)
+	}
 }
 
 func sendStartMessage(chatId int, name string) {

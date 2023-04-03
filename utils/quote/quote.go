@@ -6,13 +6,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"zeril-bot/utils/structs"
 	"zeril-bot/utils/telegram"
 )
-
-type QuoteData struct {
-	Quote  string `json:"q"`
-	Author string `json:"a"`
-}
 
 func SendAQuote(chatId int) {
 	quote := getAQuote()
@@ -21,7 +17,7 @@ func SendAQuote(chatId int) {
 	telegram.SendMessage(chatId, quoteFormat)
 }
 
-func getAQuote() QuoteData {
+func getAQuote() structs.QuoteData {
 	res, err := http.Get("https://zenquotes.io/api/random")
 
 	if err != nil {
@@ -32,7 +28,7 @@ func getAQuote() QuoteData {
 
 	body, err := ioutil.ReadAll(res.Body)
 
-	var data []QuoteData
+	var data []structs.QuoteData
 	err = json.Unmarshal(body, &data)
 
 	if err != nil {

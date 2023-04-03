@@ -21,3 +21,21 @@ type CallbackData struct {
 		Data string `json:"data"`
 	}
 }
+
+type Btc struct {
+	Symbol string `json:"symbol"`
+	Price  string `json:"price"`
+}
+
+type Exchange struct {
+	Result float64 `json:"result"`
+}
+
+type QuoteData struct {
+	Quote  string `json:"q"`
+	Author string `json:"a"`
+}
+
+type TelegramStatus struct {
+	Ok bool `json:"ok"`
+}
