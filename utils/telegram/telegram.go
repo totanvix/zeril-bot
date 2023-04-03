@@ -3,7 +3,6 @@ package telegram
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -79,28 +78,24 @@ func SendAPhoto(chatId int, path string) {
 	part2, errFile2 := writer.CreateFormFile("photo", filepath.Base(path))
 	_, errFile2 = io.Copy(part2, file)
 	if errFile2 != nil {
-		fmt.Println(errFile2)
-		return
+		log.Fatalln(errFile2)
 	}
 
 	err := writer.Close()
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Fatalln(err)
 	}
 
 	client := &http.Client{}
 	req, err := http.NewRequest(method, uri, payload)
 
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Fatalln(err)
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Fatalln(err)
 	}
 	defer res.Body.Close()
 
@@ -159,8 +154,7 @@ func SendMessageWithReplyMarkup(chatId int, message string, replyMark []ButtonCa
 
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Fatalln(err)
 	}
 	defer res.Body.Close()
 
