@@ -9,22 +9,12 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"zeril-bot/utils/structs"
 	"zeril-bot/utils/telegram"
 )
 
 var APP_ID = os.Getenv("OPEN_WEATHER_MAP_APP_ID")
 var API_URL = "https://api.openweathermap.org"
-
-type WeatherData struct {
-	Name    string `json:"name"`
-	Weather []struct {
-		Description string `json:"description"`
-	} `json:"weather"`
-	Main struct {
-		Temp     float32 `json:"temp"`
-		Humidity float32 `json:"humidity"`
-	} `json:"main"`
-}
 
 func SendForecastOfWeather(chatId int, text string) {
 	text = strings.TrimSpace(text)
@@ -60,20 +50,20 @@ func SendSuggestForecast(chatId int, args []string) {
 	btn2.Text = "Hà Nội"
 	btn2.CallbackData = "/weather ha noi"
 
-	btn3.Text = "Lâm Đồng"
-	btn3.CallbackData = "/weather lam dong"
+	btn3.Text = "Nha Trang"
+	btn3.CallbackData = "/weather nha trang"
 
 	buttons = append(buttons, btn1)
 	buttons = append(buttons, btn2)
 	buttons = append(buttons, btn3)
 
 	if len(args) == 0 {
-		telegram.SendMessageWithReplyMarkup(chatId, "Sử dụng cú pháp <code>/weather &lt;tên tỉnh thành phố&gt;</code> hoặc chọn các gợi ý bên dưới để xem thời tiết", buttons)
+		telegram.SendMessageWithReplyMarkup(chatId, "Sử dụng cú pháp <code>/weather &lt;tên thành phố&gt;</code> hoặc chọn các gợi ý bên dưới để xem thời tiết", buttons)
 		return
 	}
 }
 
-func GetWeather(cityName string) (WeatherData, error) {
+func GetWeather(cityName string) (structs.WeatherData, error) {
 	uri := API_URL + "/data/2.5/weather"
 	req, err := http.NewRequest("GET", uri, nil)
 
@@ -105,9 +95,10 @@ func GetWeather(cityName string) (WeatherData, error) {
 		log.Fatalln(err)
 	}
 
-	var data WeatherData
+	var data structs.WeatherData
 
 	if res.StatusCode != 200 {
+		log.Println(string(body))
 		return data, errors.New("Không tìm thấy thông tin thời tiết")
 	}
 
