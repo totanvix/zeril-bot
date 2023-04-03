@@ -23,15 +23,16 @@ func Router(w http.ResponseWriter, r *http.Request) {
 		log.Fatalln(err.Error())
 	}
 
+	fmt.Println(data)
 	if data.CallbackQuery.CallbackQuery.Data != "" {
-		resolveCallback(data.CallbackQuery)
+		resolveCallback(&data.CallbackQuery)
 		return
 	}
 
-	resolveCommand(data)
+	resolveCommand(&data)
 }
 
-func resolveCommand(data structs.HookData) {
+func resolveCommand(data *structs.HookData) {
 	name := data.Message.Chat.FirstName
 	username := data.Message.Chat.Username
 	chatId := data.Message.Chat.ID
@@ -64,7 +65,7 @@ func resolveCommand(data structs.HookData) {
 	}
 }
 
-func resolveCallback(callback structs.CallbackData) {
+func resolveCallback(callback *structs.CallbackData) {
 	name := callback.CallbackQuery.Chat.FirstName
 	username := callback.CallbackQuery.Chat.Username
 	chatId := callback.CallbackQuery.Chat.ID
