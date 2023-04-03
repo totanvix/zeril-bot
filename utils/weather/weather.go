@@ -37,9 +37,12 @@ func SendForecastOfWeather(chatId int, text string) {
 	}
 
 	cityName := text[9:]
+	fmt.Println("cityName")
+	fmt.Println(cityName)
 	data, err := GetWeather(cityName)
 	if err != nil {
 		telegram.SendMessage(chatId, "Không tìm thấy thông tin thời tiết")
+		return
 	}
 
 	telegram.SendMessage(chatId, fmt.Sprintf("Thời tiết hiện tại ở <b>%s</b>\n\n🌡 Nhiệt độ: <b>%.2f°C</b>\n\n💧 Độ ẩm: <b>%.2f&#37;</b>\n\nℹ️ Tổng quan: %s", data.Name, data.Main.Temp, data.Main.Humidity, data.Weather[0].Description))
