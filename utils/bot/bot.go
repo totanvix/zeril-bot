@@ -14,7 +14,7 @@ import (
 	"zeril-bot/utils/structs"
 )
 
-var API_URL string = "https://api.bot.org/bot" + os.Getenv("TELE_BOT_TOKEN")
+var API_URL string = "https://api.telegram.org/bot" + os.Getenv("TELE_BOT_TOKEN")
 
 func SendMessage(chatId int, message string) {
 	uri := API_URL + "/sendMessage"
