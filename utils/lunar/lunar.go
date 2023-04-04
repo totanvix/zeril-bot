@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"time"
-	"zeril-bot/utils/telegram"
+	"zeril-bot/utils/bot"
 
 	"github.com/Lofanmi/chinese-calendar-golang/calendar"
 )
@@ -23,5 +23,5 @@ func SendLunarDateNow(chatId int) {
 
 	message := fmt.Sprintf("Âm lịch hôm nay => %s/%s/%s", d, m, y)
 
-	telegram.SendMessage(chatId, message)
+	bot.SendMessage(chatId, message)
 }

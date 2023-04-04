@@ -7,8 +7,8 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"zeril-bot/utils/bot"
 	"zeril-bot/utils/structs"
-	"zeril-bot/utils/telegram"
 
 	"github.com/leekchan/accounting"
 )
@@ -26,7 +26,7 @@ func SendBitcoinPrice(chatId int) {
 
 	message := fmt.Sprintf("1 Bitcoin = %s (<b>%s</b>)", usd, vnd)
 
-	telegram.SendMessage(chatId, message)
+	bot.SendMessage(chatId, message)
 }
 
 func getBitcoinPrice() structs.Btc {

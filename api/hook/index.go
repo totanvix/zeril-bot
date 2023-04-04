@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"strings"
 	"zeril-bot/utils/bitcoin"
+	"zeril-bot/utils/bot"
 	"zeril-bot/utils/lunar"
 	"zeril-bot/utils/qr"
 	"zeril-bot/utils/quote"
 	"zeril-bot/utils/structs"
-	"zeril-bot/utils/telegram"
 	"zeril-bot/utils/weather"
 )
 
@@ -45,7 +45,7 @@ func ResolveCommand(data structs.HookData) {
 	text := data.Message.Text
 	arr := strings.Fields(text)
 
-	telegram.SetTypingAction(chatId)
+	bot.SetTypingAction(chatId)
 
 	log.Println(fmt.Sprintf("Yêu cầu từ bạn %s: %s", name, text))
 
@@ -69,7 +69,7 @@ func ResolveCommand(data structs.HookData) {
 	case "/qr", "/qr@zerill_bot":
 		qr.SendQRImage(chatId, text)
 	default:
-		telegram.SendMessage(chatId, "Tôi không hiểu câu lệnh của bạn !!!")
+		bot.SendMessage(chatId, "Tôi không hiểu câu lệnh của bạn !!!")
 	}
 }
 
@@ -79,7 +79,7 @@ func ResolveCallback(callback structs.HookData) {
 	text := callback.CallbackQuery.Message.Text
 	data := callback.CallbackQuery.Data
 
-	telegram.SetTypingAction(chatId)
+	bot.SetTypingAction(chatId)
 
 	log.Println(fmt.Sprintf("Yêu cầu từ bạn %s: %s, callback data: %s", name, text, data))
 
@@ -94,13 +94,13 @@ func ResolveCallback(callback structs.HookData) {
 
 func sendStartMessage(chatId int, name string) {
 	message := fmt.Sprintf("Xin chào %s \n\nGõ <code>/help</code> để xem danh sách các lệnh mà bot hỗ trợ nhé.\n\nBạn cũng có thể truy cập nhanh các chức năng bằng cách nhấn nút Menu bên dưới.", name)
-	telegram.SendMessage(chatId, message)
+	bot.SendMessage(chatId, message)
 }
 
 func sendHelpMessage(chatId int) {
-	telegram.SendMessage(chatId, "<code>/help</code> - Danh sách câu lệnh được hỗ trợ\n\n<code>/quote</code> - Xem trích dẫn hay ngẫu nhiên\n\n<code>/lunar</code> - Xem ngày âm lịch hôm nay\n\n<code>/bitcoin</code> - Xem giá Bitcoin mới nhất\n\n<code>/qr</code> - Tạo mã QR\n\n<code>/weather</code> - Xem tình hình thời tiết các tỉnh")
+	bot.SendMessage(chatId, "<code>/help</code> - Danh sách câu lệnh được hỗ trợ\n\n<code>/quote</code> - Xem trích dẫn hay ngẫu nhiên\n\n<code>/lunar</code> - Xem ngày âm lịch hôm nay\n\n<code>/bitcoin</code> - Xem giá Bitcoin mới nhất\n\n<code>/qr</code> - Tạo mã QR\n\n<code>/weather</code> - Xem tình hình thời tiết các tỉnh")
 }
 
 func sendGroupId(chatId int) {
-	telegram.SendMessage(chatId, fmt.Sprintf("Group ID: <code>%v</code>", chatId))
+	bot.SendMessage(chatId, fmt.Sprintf("Group ID: <code>%v</code>", chatId))
 }

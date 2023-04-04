@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"zeril-bot/utils/bot"
 	"zeril-bot/utils/structs"
-	"zeril-bot/utils/telegram"
 )
 
 var APP_ID = os.Getenv("OPEN_WEATHER_MAP_APP_ID")
@@ -29,16 +29,16 @@ func SendForecastOfWeather(chatId int, text string) {
 	cityName := text[9:]
 	data, err := GetWeather(cityName)
 	if err != nil {
-		telegram.SendMessage(chatId, "Không tìm thấy thông tin thời tiết")
+		bot.SendMessage(chatId, "Không tìm thấy thông tin thời tiết")
 		return
 	}
 
-	telegram.SendMessage(chatId, fmt.Sprintf("🏙 Thời tiết hiện tại ở <b>%s</b>\n\n🌡 Nhiệt độ: <b>%.2f°C</b>\n\n💧 Độ ẩm: <b>%v&#37;</b>\n\nℹ️ Tổng quan: %s", data.Name, data.Main.Temp, data.Main.Humidity, data.Weather[0].Description))
+	bot.SendMessage(chatId, fmt.Sprintf("🏙 Thời tiết hiện tại ở <b>%s</b>\n\n🌡 Nhiệt độ: <b>%.2f°C</b>\n\n💧 Độ ẩm: <b>%v&#37;</b>\n\nℹ️ Tổng quan: %s", data.Name, data.Main.Temp, data.Main.Humidity, data.Weather[0].Description))
 }
 
 func SendSuggestForecast(chatId int, args []string) {
-	var buttons []telegram.ButtonCallback
-	var btn1, btn2, btn3 telegram.ButtonCallback
+	var buttons []bot.ButtonCallback
+	var btn1, btn2, btn3 bot.ButtonCallback
 
 	btn1.Text = "Hồ Chí Minh"
 	btn1.CallbackData = "/weather ho chi minh"
@@ -54,7 +54,7 @@ func SendSuggestForecast(chatId int, args []string) {
 	buttons = append(buttons, btn3)
 
 	if len(args) == 0 {
-		telegram.SendMessageWithReplyMarkup(chatId, "Sử dụng cú pháp <code>/weather &lt;tên thành phố&gt;</code> hoặc chọn các gợi ý bên dưới để xem thời tiết", buttons)
+		bot.SendMessageWithReplyMarkup(chatId, "Sử dụng cú pháp <code>/weather &lt;tên thành phố&gt;</code> hoặc chọn các gợi ý bên dưới để xem thời tiết", buttons)
 		return
 	}
 }

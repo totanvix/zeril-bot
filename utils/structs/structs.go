@@ -36,7 +36,7 @@ type QuoteData struct {
 	Author string `json:"a"`
 }
 
-type TelegramStatus struct {
+type Status struct {
 	Ok bool `json:"ok"`
 }
 

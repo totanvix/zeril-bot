@@ -6,15 +6,15 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"zeril-bot/utils/bot"
 	"zeril-bot/utils/structs"
-	"zeril-bot/utils/telegram"
 )
 
 func SendAQuote(chatId int) {
 	quote := getAQuote()
 	quoteFormat := fmt.Sprintf("&quot;%s&quot; - <b>%s</b>", quote.Quote, quote.Author)
 
-	telegram.SendMessage(chatId, quoteFormat)
+	bot.SendMessage(chatId, quoteFormat)
 }
 
 func getAQuote() structs.QuoteData {
