@@ -21,7 +21,7 @@ func SendLunarDateNow(chatId int) {
 		m = "0" + m
 	}
 
-	message := fmt.Sprintf("Âm lịch hôm nay => %s/%s/%s", d, m, y)
+	message := fmt.Sprintf("🗓 %s/%s/%s", d, m, y)
 
 	bot.SendMessage(chatId, message)
 }
