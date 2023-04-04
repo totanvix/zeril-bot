@@ -24,7 +24,10 @@ func Router(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if data.Message.Text == "" && data.CallbackQuery.Data == "" {
-		log.Fatalln("No message found")
+		log.Println("No message found")
+		w.Header().Set("status", "200")
+		fmt.Fprintln(w, "No message found")
+		return
 	}
 
 	if data.Message.Chat.Type == "group" {
