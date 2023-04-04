@@ -2,9 +2,10 @@ package structs
 
 type Chat struct {
 	ID        int    `json:"id"`
-	FirstName string `json:"first_name"`
-	Username  string `json:"username"`
 	Type      string `json:"type"`
+	FirstName string `json:"first_name,omitempty"`
+	Username  string `json:"username,omitempty"`
+	Title     string `json:"title,omitempty"`
 }
 
 type Message struct {
