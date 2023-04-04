@@ -50,3 +50,11 @@ type WeatherData struct {
 		Humidity int     `json:"humidity"`
 	} `json:"main"`
 }
+
+type BotCommands struct {
+	Status
+	Result []struct {
+		Command     string `json:"command"`
+		Description string `json:"description"`
+	}
+}

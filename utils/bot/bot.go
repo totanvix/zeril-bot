@@ -3,6 +3,7 @@ package bot
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -15,6 +16,26 @@ import (
 )
 
 var API_URL string = "https://api.telegram.org/bot" + os.Getenv("TELE_BOT_TOKEN")
+
+func SendStartMessage(chatId int, name string) {
+	message := fmt.Sprintf("Xin chào %s \n\nGõ <code>/help</code> để xem danh sách các lệnh mà bot hỗ trợ nhé.\n\nBạn cũng có thể truy cập nhanh các chức năng bằng cách nhấn nút Menu bên dưới.", name)
+	SendMessage(chatId, message)
+}
+
+func SendHelpMessage(chatId int) {
+	messages := ""
+	botCommands := GetBotCommands()
+
+	for _, command := range botCommands.Result {
+		messages += fmt.Sprintf("<code>/%s</code> - %s\n\n", command.Command, command.Description)
+	}
+
+	SendMessage(chatId, messages)
+}
+
+func SendGroupId(chatId int) {
+	SendMessage(chatId, fmt.Sprintf("Group ID: <code>%v</code>", chatId))
+}
 
 func SendMessage(chatId int, message string) {
 	uri := API_URL + "/sendMessage"
@@ -37,8 +58,7 @@ func SendMessage(chatId int, message string) {
 	res, err := client.Do(req)
 
 	if err != nil {
-		log.Println(err)
-		return
+		log.Fatalln(err)
 	}
 
 	defer res.Body.Close()
@@ -46,8 +66,7 @@ func SendMessage(chatId int, message string) {
 	body, err := ioutil.ReadAll(res.Body)
 
 	if err != nil {
-		log.Println(err)
-		return
+		log.Fatalln(err)
 	}
 
 	var status structs.Status
@@ -212,4 +231,43 @@ func SetTypingAction(chatId int) {
 	if body != nil {
 		log.Println("SetTypingAction OK")
 	}
+}
+
+func GetBotCommands() structs.BotCommands {
+	uri := API_URL + "/getMyCommands"
+	req, err := http.NewRequest("GET", uri, nil)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	client := &http.Client{}
+
+	res, err := client.Do(req)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var botCommands structs.BotCommands
+
+	err = json.Unmarshal(body, &botCommands)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	if botCommands.Ok == false {
+		log.Fatalln(string(body))
+	}
+
+	log.Println("GetBotCommands OK")
+	return botCommands
 }

@@ -53,11 +53,11 @@ func ResolveCommand(data structs.HookData) {
 
 	switch command {
 	case "/start", "/start@zerill_bot":
-		sendStartMessage(chatId, name)
+		bot.SendStartMessage(chatId, name)
 	case "/help", "/help@zerill_bot":
-		sendHelpMessage(chatId)
+		bot.SendHelpMessage(chatId)
 	case "/groupid", "/groupid@zerill_bot":
-		sendGroupId(chatId)
+		bot.SendGroupId(chatId)
 	case "/quote", "/quote@zerill_bot":
 		quote.SendAQuote(chatId)
 	case "/lunar", "/lunar@zerill_bot":
@@ -90,17 +90,4 @@ func ResolveCallback(callback structs.HookData) {
 	case "/weather":
 		weather.SendForecastOfWeather(chatId, data)
 	}
-}
-
-func sendStartMessage(chatId int, name string) {
-	message := fmt.Sprintf("Xin chào %s \n\nGõ <code>/help</code> để xem danh sách các lệnh mà bot hỗ trợ nhé.\n\nBạn cũng có thể truy cập nhanh các chức năng bằng cách nhấn nút Menu bên dưới.", name)
-	bot.SendMessage(chatId, message)
-}
-
-func sendHelpMessage(chatId int) {
-	bot.SendMessage(chatId, "<code>/help</code> - Danh sách câu lệnh được hỗ trợ\n\n<code>/quote</code> - Xem trích dẫn hay ngẫu nhiên\n\n<code>/lunar</code> - Xem ngày âm lịch hôm nay\n\n<code>/bitcoin</code> - Xem giá Bitcoin mới nhất\n\n<code>/qr</code> - Tạo mã QR\n\n<code>/weather</code> - Xem tình hình thời tiết các tỉnh")
-}
-
-func sendGroupId(chatId int) {
-	bot.SendMessage(chatId, fmt.Sprintf("Group ID: <code>%v</code>", chatId))
 }
