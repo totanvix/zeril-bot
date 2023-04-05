@@ -33,8 +33,13 @@ func SendHelpMessage(chatId int) {
 	SendMessage(chatId, messages)
 }
 
-func SendGroupId(chatId int) {
-	SendMessage(chatId, fmt.Sprintf("Group ID: <code>%v</code>", chatId))
+func SendGroupId(chatId int, chatType string) {
+	if chatType == "group" {
+		SendMessage(chatId, fmt.Sprintf("Group ID: <code>%v</code>", chatId))
+		return
+	}
+
+	SendMessage(chatId, "Không tìm thấy nhóm, bạn cần thêm bot vào nhóm trước khi thực hiện lệnh này !")
 }
 
 func SendMessage(chatId int, message string) {

@@ -60,7 +60,7 @@ func ResolveCommand(data structs.HookData) {
 	case "/help", "/help@zerill_bot":
 		bot.SendHelpMessage(chatId)
 	case "/groupid", "/groupid@zerill_bot":
-		bot.SendGroupId(chatId)
+		bot.SendGroupId(chatId, data.Message.Chat.Type)
 	case "/quote", "/quote@zerill_bot":
 		quote.SendAQuote(chatId)
 	case "/lunar", "/lunar@zerill_bot":

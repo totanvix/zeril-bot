@@ -13,15 +13,15 @@ func SendLunarDateNow(chatId int) {
 	t := time.Now()
 	c := calendar.ByTimestamp(t.Unix())
 
-	d := strconv.Itoa(int(c.Lunar.GetDay()))
+	d := c.Lunar.GetDay()
 	m := strconv.Itoa(int(c.Lunar.GetMonth()))
-	y := strconv.Itoa(int(c.Lunar.GetYear()))
+	y := c.Lunar.GetYear()
 
 	if len(m) == 1 {
 		m = "0" + m
 	}
 
-	message := fmt.Sprintf("🗓 %s/%s/%s", d, m, y)
+	message := fmt.Sprintf("🗓 %v/%v/%v", d, m, y)
 
 	bot.SendMessage(chatId, message)
 }
