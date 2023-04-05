@@ -54,7 +54,7 @@ func SendSuggestForecast(chatId int, args []string) {
 	buttons = append(buttons, btn3)
 
 	if len(args) == 0 {
-		bot.SendMessageWithReplyMarkup(chatId, "Sử dụng cú pháp <code>/weather &lt;tên thành phố&gt;</code> hoặc chọn các gợi ý bên dưới để xem thời tiết", buttons)
+		bot.SendMessageWithReplyMarkup(chatId, "Sử dụng cú pháp <code>/weather tên thành phố</code> hoặc chọn các gợi ý bên dưới để xem thời tiết", buttons)
 		return
 	}
 }

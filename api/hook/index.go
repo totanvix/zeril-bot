@@ -11,6 +11,7 @@ import (
 	"zeril-bot/utils/lunar"
 	"zeril-bot/utils/qr"
 	"zeril-bot/utils/quote"
+	"zeril-bot/utils/random"
 	"zeril-bot/utils/structs"
 	"zeril-bot/utils/weather"
 )
@@ -71,6 +72,8 @@ func ResolveCommand(data structs.HookData) {
 		bitcoin.SendBitcoinPrice(chatId)
 	case "/qr", "/qr@zerill_bot":
 		qr.SendQRImage(chatId, text)
+	case "/random", "/random@zerill_bot":
+		random.RandomElements(chatId, text)
 	default:
 		bot.SendMessage(chatId, "Tôi không hiểu câu lệnh của bạn !!!")
 	}

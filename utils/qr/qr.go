@@ -12,7 +12,7 @@ func SendQRImage(chatId int, text string) {
 	arr := strings.Fields(text)
 	args := arr[1:]
 	if len(args) == 0 {
-		bot.SendMessage(chatId, "Sử dụng cú pháp <code>/qr &lt;nội dung&gt;</code> để tạo mã QR.")
+		bot.SendMessage(chatId, "Sử dụng cú pháp <code>/qr nội dung</code> để tạo mã QR.")
 		return
 	}
 
