@@ -8,6 +8,7 @@ import (
 	"strings"
 	"zeril-bot/utils/bitcoin"
 	"zeril-bot/utils/bot"
+	"zeril-bot/utils/kqxs"
 	"zeril-bot/utils/lunar"
 	"zeril-bot/utils/qr"
 	"zeril-bot/utils/quote"
@@ -74,6 +75,8 @@ func ResolveCommand(data structs.HookData) {
 		qr.SendQRImage(chatId, text)
 	case "/random", "/random@zerill_bot":
 		random.RandomElements(chatId, text)
+	case "/kqxs", "/kqxs@zerill_bot":
+		kqxs.Send(chatId, text)
 	default:
 		bot.SendMessage(chatId, "Tôi không hiểu câu lệnh của bạn !!!")
 	}
@@ -95,5 +98,7 @@ func ResolveCallback(callback structs.HookData) {
 	switch command {
 	case "/weather":
 		weather.SendForecastOfWeather(chatId, data)
+	case "/kqxs":
+		kqxs.Send(chatId, data)
 	}
 }
