@@ -29,6 +29,10 @@ func Send(chatId int, text string) {
 	message := strings.Replace(feed.Items[0].Description, "Giải", "\nGiải", -1)
 	message = strings.Replace(message, "[", "\n\n[", -1)
 
+	if zone == "mien-bac-xsmb" {
+		message = strings.Replace(message, "ĐB:", "\n\nĐB:", -1)
+	}
+
 	bot.SendMessage(chatId, feed.Items[0].Title+message)
 }
 
