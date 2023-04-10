@@ -1,6 +1,6 @@
 # zeril-bot
 
-start - Bắt đầu trò truyện với Zeril
+start - Bắt đầu trò chuyện với Zeril
 help - Danh sách câu lệnh được hỗ trợ
 quote - Xem trích dẫn hay ngẫu nhiên
 lunar - Xem ngày âm lịch hôm nay
