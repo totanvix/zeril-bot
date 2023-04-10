@@ -10,4 +10,4 @@ qr - Tạo mã QR
 groupid - Lấy ID của nhóm Telegram
 random - Chọn ra một phần tử ngẫu nhiên trong các phần tử
 kqxs - Xem kết quả xổ số ba miền
-shorturl - Rút gọn liên kết
+shortener - Rút gọn liên kết

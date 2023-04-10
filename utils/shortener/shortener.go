@@ -30,5 +30,5 @@ func Do(chatId int, text string) {
 
 	redis.Set(id, url, time.Hour)
 
-	bot.SendMessage(chatId, fmt.Sprintf("URL sau khi rút gọn: <code>%s/shorturl/%s</code>", os.Getenv("APP_URL"), id))
+	bot.SendMessage(chatId, fmt.Sprintf("URL sau khi rút gọn: <code>%s/url/%s</code>", os.Getenv("APP_URL"), id))
 }

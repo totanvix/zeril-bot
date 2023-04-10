@@ -17,8 +17,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	els := strings.FieldsFunc(path, f)
-
-	if els[0] == "shorturl" {
+	if els[0] == "url" {
 		id := els[1]
 		url := redis.Get(id).Val()
 		if url != "" {

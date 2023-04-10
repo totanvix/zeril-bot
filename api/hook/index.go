@@ -78,7 +78,7 @@ func ResolveCommand(data structs.HookData) {
 		random.RandomElements(chatId, text)
 	case "/kqxs", "/kqxs@zerill_bot":
 		kqxs.Send(chatId, text)
-	case "/shorturl", "/shorturl@zerill_bot":
+	case "/shortener", "/shortener@zerill_bot":
 		shortener.Do(chatId, text)
 	default:
 		bot.SendMessage(chatId, "Tôi không hiểu câu lệnh của bạn !!!")
