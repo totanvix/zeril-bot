@@ -1,3 +1,8 @@
 {
-  
+  "routes": [
+    {
+      "src": "shorturl/(.*)",
+      "dest": "/api/shorturl/index.go"
+    }
+  ]
 }

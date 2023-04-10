@@ -13,6 +13,7 @@ import (
 	"zeril-bot/utils/qr"
 	"zeril-bot/utils/quote"
 	"zeril-bot/utils/random"
+	"zeril-bot/utils/shortener"
 	"zeril-bot/utils/structs"
 	"zeril-bot/utils/weather"
 )
@@ -77,6 +78,8 @@ func ResolveCommand(data structs.HookData) {
 		random.RandomElements(chatId, text)
 	case "/kqxs", "/kqxs@zerill_bot":
 		kqxs.Send(chatId, text)
+	case "/shorturl", "/shorturl@zerill_bot":
+		shortener.Do(chatId, text)
 	default:
 		bot.SendMessage(chatId, "Tôi không hiểu câu lệnh của bạn !!!")
 	}
