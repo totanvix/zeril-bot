@@ -13,27 +13,31 @@ func Send(chatId int, text string) {
 	arr := strings.Fields(text)
 	args := arr[1:]
 
-	if len(args) == 0 {
+	if len(args) != 1 {
 		SendSuggest(chatId, args)
 		return
 	}
 
 	zone := text[6:]
 
-	fmt.Println(zone)
+	switch zone {
+	case "mien-nam-xsmn", "mien-bac-xsmb", "mien-trung-xsmt":
+		fp := gofeed.NewParser()
+		feed, _ := fp.ParseURL(fmt.Sprintf("https://xosothienphu.com/ket-qua-xo-so-%s.rss", zone))
+		fmt.Println(feed.Items[0].Description)
 
-	fp := gofeed.NewParser()
-	feed, _ := fp.ParseURL(fmt.Sprintf("https://xosothienphu.com/ket-qua-xo-so-%s.rss", zone))
-	fmt.Println(feed.Items[0].Description)
+		message := strings.Replace(feed.Items[0].Description, "Giải", "\nGiải", -1)
+		message = strings.Replace(message, "[", "\n\n[", -1)
 
-	message := strings.Replace(feed.Items[0].Description, "Giải", "\nGiải", -1)
-	message = strings.Replace(message, "[", "\n\n[", -1)
+		if zone == "mien-bac-xsmb" {
+			message = strings.Replace(message, "ĐB:", "\n\nĐB:", -1)
+		}
 
-	if zone == "mien-bac-xsmb" {
-		message = strings.Replace(message, "ĐB:", "\n\nĐB:", -1)
+		bot.SendMessage(chatId, feed.Items[0].Title+message)
+	default:
+		bot.SendMessage(chatId, "Tôi không hiểu câu lệnh của bạn !!!")
 	}
 
-	bot.SendMessage(chatId, feed.Items[0].Title+message)
 }
 
 func SendSuggest(chatId int, args []string) {
