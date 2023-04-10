@@ -3,6 +3,7 @@ package shortener
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -18,17 +19,32 @@ func Do(chatId int, text string) {
 	arr := strings.Fields(text)
 	args := arr[1:]
 	if len(args) == 0 {
-		bot.SendMessage(chatId, "Sử dụng cú pháp <code>/shorturl https://example.com/</code> để tạo rút gọn liên kết")
+		bot.SendMessage(chatId, "Sử dụng cú pháp <code>/shortener https://example.com/</code> để tạo rút gọn liên kết")
 		return
 	}
 
-	url := text[10:]
-	id, err := gonanoid.Generate(rawAlphabet, 8)
+	url := text[11:]
+	fmt.Println(url)
+
+	if !isUrl(url) {
+		bot.SendMessage(chatId, "URL không đúng định dạng")
+		return
+	}
+
+	id, err := gonanoid.Generate(rawAlphabet, 6)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	redis.Set(id, url, time.Hour)
 
-	bot.SendMessage(chatId, fmt.Sprintf("URL sau khi rút gọn: <code>%s/url/%s</code>", os.Getenv("APP_URL"), id))
+	shortUrl := fmt.Sprintf("%s/url/%s", os.Getenv("APP_URL"), id)
+
+	bot.SendMessage(chatId, fmt.Sprintf("URL sau khi rút gọn: <a href='%s'>%s</a>", shortUrl, shortUrl))
+
+}
+
+func isUrl(str string) bool {
+	u, err := url.Parse(str)
+	return err == nil && u.Scheme != "" && u.Host != ""
 }
