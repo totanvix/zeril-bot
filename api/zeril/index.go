@@ -1,0 +1,5 @@
+package zeril
+
+func X() {
+
+}
