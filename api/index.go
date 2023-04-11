@@ -11,15 +11,15 @@ import (
 )
 
 func Handler(wri http.ResponseWriter, req *http.Request) {
+
 	r := chi.NewRouter()
 	r.Use(chiMiddle.Logger)
 	r.Use(middleware.PreRequest)
 	r.Use(middleware.Recoverer)
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("welcome"))
-	})
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {})
 	r.Post("/api/hook", hook.Handler)
 	r.Get("/url", url.Handler)
+
 	r.ServeHTTP(wri, req)
 }

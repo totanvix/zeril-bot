@@ -17,7 +17,9 @@ func PreRequest(next http.Handler) http.Handler {
 		err := json.NewDecoder(r.Body).Decode(&data)
 
 		if err != nil {
-			log.Panic(err.Error())
+			log.Println("Request is not from Telegram")
+			next.ServeHTTP(w, r)
+			return
 		}
 
 		if data.Message.Text == "" && data.CallbackQuery.Data == "" {
