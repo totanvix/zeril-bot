@@ -2,7 +2,6 @@ package bot
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -44,9 +43,6 @@ func SendGroupId(chatId int, chatType string) {
 }
 
 func SendMessage(chatId int, message string) {
-	x := context.Context.Value(context.Background(), "data")
-
-	fmt.Println(x)
 	uri := API_URL + "/sendMessage"
 	req, err := http.NewRequest("GET", uri, nil)
 
