@@ -21,7 +21,7 @@ func getAQuote() structs.QuoteData {
 	res, err := http.Get("https://zenquotes.io/api/random")
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	defer res.Body.Close()
@@ -32,7 +32,7 @@ func getAQuote() structs.QuoteData {
 	err = json.Unmarshal(body, &data)
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	return data[0]

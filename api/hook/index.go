@@ -1,7 +1,6 @@
 package hook
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -19,33 +18,17 @@ import (
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
-	var data structs.HookData
-	err := json.NewDecoder(r.Body).Decode(&data)
-
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-
-	if data.Message.Text == "" && data.CallbackQuery.Data == "" {
-		log.Println("No message found")
-		w.Header().Set("status", "200")
-		fmt.Fprintln(w, "No message found")
-		return
-	}
-
-	if data.Message.Chat.Type == "group" {
-		data.Message.Chat.FirstName = data.Message.Chat.Title
-	}
+	data := r.Context().Value("data").(structs.HookData)
 
 	if data.CallbackQuery.Data != "" {
-		ResolveCallback(data)
+		resolveCallback(data)
 		return
 	}
 
-	ResolveCommand(data)
+	resolveCommand(data)
 }
 
-func ResolveCommand(data structs.HookData) {
+func resolveCommand(data structs.HookData) {
 	name := data.Message.Chat.FirstName
 	chatId := data.Message.Chat.ID
 	text := data.Message.Text
@@ -85,7 +68,7 @@ func ResolveCommand(data structs.HookData) {
 	}
 }
 
-func ResolveCallback(callback structs.HookData) {
+func resolveCallback(callback structs.HookData) {
 	name := callback.CallbackQuery.Message.Chat.FirstName
 	chatId := callback.CallbackQuery.Message.Chat.ID
 	text := callback.CallbackQuery.Message.Text

@@ -20,7 +20,7 @@ func SendQRImage(chatId int, text string) {
 	path := "/tmp/qr.png"
 	err := qrcode.WriteFile(content, qrcode.Medium, 256, path)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	bot.SendAPhoto(chatId, path)

@@ -64,7 +64,7 @@ func GetWeather(cityName string) (structs.WeatherData, error) {
 	req, err := http.NewRequest("GET", uri, nil)
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	q := req.URL.Query()
@@ -80,7 +80,7 @@ func GetWeather(cityName string) (structs.WeatherData, error) {
 	res, err := client.Do(req)
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	defer res.Body.Close()
@@ -88,7 +88,7 @@ func GetWeather(cityName string) (structs.WeatherData, error) {
 	body, err := ioutil.ReadAll(res.Body)
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	var data structs.WeatherData
@@ -100,7 +100,7 @@ func GetWeather(cityName string) (structs.WeatherData, error) {
 
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	log.Println("GetWeather OK")

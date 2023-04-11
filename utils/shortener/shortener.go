@@ -32,7 +32,7 @@ func Do(chatId int, text string) {
 
 	id, err := gonanoid.Generate(rawAlphabet, 6)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	redis.Set(id, url, time.Hour)

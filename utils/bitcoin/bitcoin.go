@@ -33,7 +33,7 @@ func getBitcoinPrice() structs.Btc {
 	res, err := http.Get("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT")
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	defer res.Body.Close()
@@ -41,14 +41,14 @@ func getBitcoinPrice() structs.Btc {
 	body, err := ioutil.ReadAll(res.Body)
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	var data structs.Btc
 
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	return data
@@ -59,7 +59,7 @@ func exchangeUsdToVnd(p float64) float64 {
 	res, err := http.Get("https://api.exchangerate.host/convert?from=USD&to=VND&amount=" + price)
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	defer res.Body.Close()
@@ -67,14 +67,14 @@ func exchangeUsdToVnd(p float64) float64 {
 	body, err := ioutil.ReadAll(res.Body)
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	var data structs.Exchange
 
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	return data.Result
