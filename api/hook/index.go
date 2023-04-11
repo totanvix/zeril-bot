@@ -29,7 +29,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func resolveCommand(data structs.HookData) {
-	name := data.Message.Chat.FirstName
+	name := data.Message.From.FirstName
 	chatId := data.Message.Chat.ID
 	text := data.Message.Text
 	arr := strings.Fields(text)
@@ -46,7 +46,7 @@ func resolveCommand(data structs.HookData) {
 	case "/help", "/help@zerill_bot":
 		bot.SendHelpMessage(chatId)
 	case "/groupid", "/groupid@zerill_bot":
-		bot.SendGroupId(chatId, data.Message.Chat.Type)
+		bot.SendGroupId(chatId, string(data.Message.Chat.Type))
 	case "/quote", "/quote@zerill_bot":
 		quote.SendAQuote(chatId)
 	case "/lunar", "/lunar@zerill_bot":
@@ -69,7 +69,7 @@ func resolveCommand(data structs.HookData) {
 }
 
 func resolveCallback(callback structs.HookData) {
-	name := callback.CallbackQuery.Message.Chat.FirstName
+	name := callback.CallbackQuery.Message.From.FirstName
 	chatId := callback.CallbackQuery.Message.Chat.ID
 	text := callback.CallbackQuery.Message.Text
 	data := callback.CallbackQuery.Data

@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"runtime/debug"
+	"zeril-bot/utils/bot"
 	"zeril-bot/utils/structs"
 
 	"github.com/go-chi/chi/v5/middleware"
@@ -34,11 +35,10 @@ func PreRequest(next http.Handler) http.Handler {
 			return
 		}
 
-		if data.Message.Chat.Type == "group" {
-			data.Message.Chat.FirstName = data.Message.Chat.Title
-		}
-
 		ctx := context.WithValue(r.Context(), "data", data)
+
+		bot.SetChatFrom(data.Message.From)
+		bot.SetChatType(data.Message.Chat.Type)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}

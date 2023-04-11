@@ -8,9 +8,16 @@ type Chat struct {
 	Title     string `json:"title,omitempty"`
 }
 
+type From struct {
+	ID        int    `json:"id"`
+	FirstName string `json:"first_name"`
+	Username  string `json:"username"`
+}
+
 type Message struct {
 	Text string `json:"text"`
 	Chat Chat   `json:"chat"`
+	From From   `json:"from"`
 }
 
 type HookData struct {

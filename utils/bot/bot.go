@@ -17,6 +17,9 @@ import (
 
 var API_URL string = "https://api.telegram.org/bot" + os.Getenv("TELE_BOT_TOKEN")
 
+var chatType string
+var chatFrom structs.From
+
 func SendStartMessage(chatId int, name string) {
 	message := fmt.Sprintf("Xin chào %s \n\nGõ <code>/help</code> để xem danh sách các lệnh mà bot hỗ trợ nhé.\n\nBạn cũng có thể truy cập nhanh các chức năng bằng cách nhấn nút Menu bên dưới.", name)
 	SendMessage(chatId, message)
@@ -43,6 +46,10 @@ func SendGroupId(chatId int, chatType string) {
 }
 
 func SendMessage(chatId int, message string) {
+	if chatType == "group" {
+		message = message + " @" + chatFrom.Username
+	}
+
 	uri := API_URL + "/sendMessage"
 	req, err := http.NewRequest("GET", uri, nil)
 
@@ -95,6 +102,10 @@ func SendAPhoto(chatId int, path string) {
 	payload := &bytes.Buffer{}
 	writer := multipart.NewWriter(payload)
 	writer.WriteField("chat_id", strconv.Itoa(chatId))
+
+	if chatType == "group" {
+		writer.WriteField("caption", "@"+chatFrom.Username)
+	}
 
 	file, errFile2 := os.Open(path)
 	defer file.Close()
@@ -165,6 +176,9 @@ func SendMessageWithReplyMarkup(chatId int, message string, replyMark []ButtonCa
 	if err != nil {
 		log.Println(err)
 		return
+	}
+	if chatType == "group" {
+		message = message + " @" + chatFrom.Username
 	}
 
 	q := req.URL.Query()
@@ -275,4 +289,11 @@ func GetBotCommands() structs.BotCommands {
 
 	log.Println("GetBotCommands OK")
 	return botCommands
+}
+
+func SetChatFrom(chat structs.From) {
+	chatFrom = chat
+}
+func SetChatType(t string) {
+	chatType = t
 }
