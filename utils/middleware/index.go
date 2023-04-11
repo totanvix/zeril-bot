@@ -38,7 +38,7 @@ func PreRequest(next http.Handler) http.Handler {
 		ctx := context.WithValue(r.Context(), "data", data)
 
 		if data.CallbackQuery.Data != "" {
-			bot.SetChatFrom(data.CallbackQuery.Message.From)
+			bot.SetChatFrom(data.CallbackQuery.From)
 			bot.SetChatType(data.CallbackQuery.Message.Chat.Type)
 		} else {
 			bot.SetChatFrom(data.Message.From)

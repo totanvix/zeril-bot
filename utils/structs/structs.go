@@ -24,6 +24,7 @@ type HookData struct {
 	UpdateId      int     `json:"update_id"`
 	Message       Message `json:"message"`
 	CallbackQuery struct {
+		From    From    `json:"from"`
 		Message Message `json:"message"`
 		Data    string  `json:"data"`
 	} `json:"callback_query"`
