@@ -8,5 +8,9 @@
       "src": "/url/(.*)",
       "dest": "/api/url/index.go"
     }
-  ]
+  ],
+  "github": {
+    "enabled": false,
+    "silent": true
+  }
 }
