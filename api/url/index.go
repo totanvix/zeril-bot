@@ -1,4 +1,4 @@
-package shorturl
+package url
 
 import (
 	"fmt"
@@ -9,7 +9,6 @@ import (
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.URL.Path)
 	path := r.URL.Path
 
 	f := func(c rune) bool {

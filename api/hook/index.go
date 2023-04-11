@@ -1,4 +1,4 @@
-package api
+package hook
 
 import (
 	"encoding/json"
@@ -18,7 +18,7 @@ import (
 	"zeril-bot/utils/weather"
 )
 
-func Router(w http.ResponseWriter, r *http.Request) {
+func Handler(w http.ResponseWriter, r *http.Request) {
 	var data structs.HookData
 	err := json.NewDecoder(r.Body).Decode(&data)
 

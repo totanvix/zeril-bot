@@ -2,6 +2,8 @@ package api
 
 import (
 	"net/http"
+	"zeril-bot/api/hook"
+	"zeril-bot/api/url"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -12,15 +14,7 @@ func Handler(wri http.ResponseWriter, req *http.Request) {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("welcome"))
 	})
-	r.Get("/api/hook", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("hook"))
-	})
-	r.Get("/url", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("url"))
-	})
-	r.Post("/test", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("test"))
-	})
-
+	r.Get("/api/hook", hook.Handler)
+	r.Get("/url", url.Handler)
 	r.ServeHTTP(wri, req)
 }
