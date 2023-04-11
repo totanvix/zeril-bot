@@ -14,7 +14,7 @@ func Handler(wri http.ResponseWriter, req *http.Request) {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("welcome"))
 	})
-	r.Get("/api/hook", hook.Handler)
+	r.Post("/api/hook", hook.Handler)
 	r.Get("/url", url.Handler)
 	r.ServeHTTP(wri, req)
 }
