@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"image/jpeg"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -17,10 +16,10 @@ func SendLunarDateNow(chatId int) {
 	y, m, d := time.Now().Date()
 
 	path := "/tmp/lunar.jpg"
-	err := downloadAndCropImage(fmt.Sprintf("https://licham365.vn/images/lich-am-ngay-%v-thang-%v-nam-%v.jpg", d, int(m), y), path)
+
+	downloadAndCropImage(fmt.Sprintf("https://licham365.vn/images/lich-am-ngay-%v-thang-%v-nam-%v.jpg", d, int(m), y), path)
 
 	bot.SendAPhoto(chatId, path)
-	log.Println(err)
 }
 
 func downloadAndCropImage(URL, fileName string) error {
