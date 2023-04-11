@@ -37,8 +37,13 @@ func PreRequest(next http.Handler) http.Handler {
 
 		ctx := context.WithValue(r.Context(), "data", data)
 
-		bot.SetChatFrom(data.Message.From)
-		bot.SetChatType(data.Message.Chat.Type)
+		if data.CallbackQuery.Data != "" {
+			bot.SetChatFrom(data.CallbackQuery.Message.From)
+			bot.SetChatType(data.CallbackQuery.Message.Chat.Type)
+		} else {
+			bot.SetChatFrom(data.Message.From)
+			bot.SetChatType(data.Message.Chat.Type)
+		}
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}

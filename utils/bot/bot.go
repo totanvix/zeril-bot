@@ -47,7 +47,7 @@ func SendGroupId(chatId int, chatType string) {
 
 func SendMessage(chatId int, message string) {
 	if chatType == "group" {
-		message = message + " @" + chatFrom.Username
+		message = message + "\n@" + chatFrom.Username
 	}
 
 	uri := API_URL + "/sendMessage"
@@ -178,7 +178,7 @@ func SendMessageWithReplyMarkup(chatId int, message string, replyMark []ButtonCa
 		return
 	}
 	if chatType == "group" {
-		message = message + " @" + chatFrom.Username
+		message = message + "\n@" + chatFrom.Username
 	}
 
 	q := req.URL.Query()
