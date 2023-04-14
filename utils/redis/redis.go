@@ -2,17 +2,16 @@ package redis
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"time"
 
 	"github.com/redis/go-redis/v9"
 )
 
-var upstashUrl = fmt.Sprintf("rediss://default:%s@dear-hound-30219.upstash.io:30219", os.Getenv("UPSTASH_PASSWORD"))
 var ctx = context.Background()
 
 func client() *redis.Client {
+	upstashUrl := os.Getenv("UPSTASH_URL")
 	opt, _ := redis.ParseURL(upstashUrl)
 	client := redis.NewClient(opt)
 
