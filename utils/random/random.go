@@ -5,14 +5,14 @@ import (
 	"math/rand"
 	"strings"
 	"unicode"
-	"zeril-bot/utils/bot"
+	"zeril-bot/utils/channel"
 )
 
 func RandomElements(chatId int, text string) {
 	arr := strings.Fields(text)
 
 	if len(arr[1:]) == 0 {
-		bot.SendMessage(chatId, "Sử dụng cú pháp <code>/random A, B, C</code> để chọn phần tử ngẫu nhiên")
+		channel.SendMessage(chatId, "Sử dụng cú pháp <code>/random A, B, C</code> để chọn phần tử ngẫu nhiên")
 		return
 	}
 
@@ -24,5 +24,5 @@ func RandomElements(chatId int, text string) {
 
 	el := els[rand.Intn(len(els))]
 
-	bot.SendMessage(chatId, fmt.Sprintf("Phần từ được chọn sau khi random: %v", strings.TrimSpace(el)))
+	channel.SendMessage(chatId, fmt.Sprintf("Phần từ được chọn sau khi random: %v", strings.TrimSpace(el)))
 }

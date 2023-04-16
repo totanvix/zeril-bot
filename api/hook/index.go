@@ -7,6 +7,8 @@ import (
 	"strings"
 	"zeril-bot/utils/bitcoin"
 	"zeril-bot/utils/bot"
+	"zeril-bot/utils/channel"
+	_ "zeril-bot/utils/channel"
 	"zeril-bot/utils/kqxs"
 	"zeril-bot/utils/lunar"
 	"zeril-bot/utils/qr"
@@ -20,12 +22,15 @@ import (
 func Handler(w http.ResponseWriter, r *http.Request) {
 	data := r.Context().Value("data").(structs.HookData)
 
+	channel.GetWg().Add(2)
+
 	if data.CallbackQuery.Data != "" {
 		resolveCallback(data)
-		return
+	} else {
+		resolveCommand(data)
 	}
 
-	resolveCommand(data)
+	channel.GetWg().Wait()
 }
 
 func resolveCommand(data structs.HookData) {
@@ -34,7 +39,7 @@ func resolveCommand(data structs.HookData) {
 	text := data.Message.Text
 	arr := strings.Fields(text)
 
-	bot.SetTypingAction(chatId)
+	setBotIsTyping(chatId)
 
 	log.Println(fmt.Sprintf("Yêu cầu từ bạn %s: %s", name, text))
 
@@ -62,9 +67,9 @@ func resolveCommand(data structs.HookData) {
 	case "/kqxs", "/kqxs@zerill_bot":
 		kqxs.Send(chatId, text)
 	case "/shortener", "/shortener@zerill_bot":
-		shortener.Do(chatId, text)
+		shortener.Generate(chatId, text)
 	default:
-		bot.SendMessage(chatId, "Tôi không hiểu câu lệnh của bạn !!!")
+		channel.SendMessage(chatId, "Tôi không hiểu câu lệnh của bạn !!!")
 	}
 }
 
@@ -74,7 +79,7 @@ func resolveCallback(callback structs.HookData) {
 	text := callback.CallbackQuery.Message.Text
 	data := callback.CallbackQuery.Data
 
-	bot.SetTypingAction(chatId)
+	setBotIsTyping(chatId)
 
 	log.Println(fmt.Sprintf("Yêu cầu từ bạn %s: %s, callback data: %s", name, text, data))
 
@@ -87,4 +92,11 @@ func resolveCallback(callback structs.HookData) {
 	case "/kqxs":
 		kqxs.Send(chatId, data)
 	}
+}
+
+func setBotIsTyping(chatId int) {
+	go func() {
+		bot.SetTypingAction(chatId)
+		channel.GetWg().Done()
+	}()
 }

@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 	"time"
-	"zeril-bot/utils/bot"
+	"zeril-bot/utils/channel"
 	"zeril-bot/utils/redis"
 
 	gonanoid "github.com/matoous/go-nanoid"
@@ -15,18 +15,18 @@ import (
 
 const rawAlphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
-func Do(chatId int, text string) {
+func Generate(chatId int, text string) {
 	arr := strings.Fields(text)
 	args := arr[1:]
 
 	if len(args) != 1 {
-		bot.SendMessage(chatId, "Sử dụng cú pháp <code>/shortener https://example.com/</code> để tạo rút gọn liên kết")
+		channel.SendMessage(chatId, "Sử dụng cú pháp <code>/shortener https://example.com/</code> để tạo rút gọn liên kết")
 		return
 	}
 
 	url := text[11:]
 	if !isUrl(url) {
-		bot.SendMessage(chatId, "URL không đúng định dạng")
+		channel.SendMessage(chatId, "URL không đúng định dạng")
 		return
 	}
 
@@ -39,7 +39,7 @@ func Do(chatId int, text string) {
 
 	shortUrl := fmt.Sprintf("%s/url/%s", os.Getenv("APP_URL"), id)
 
-	bot.SendMessage(chatId, fmt.Sprintf("URL sau khi rút gọn: <a href='%s'>%s</a>", shortUrl, shortUrl))
+	channel.SendMessage(chatId, fmt.Sprintf("URL sau khi rút gọn: <a href='%s'>%s</a>", shortUrl, shortUrl))
 
 }
 

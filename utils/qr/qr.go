@@ -3,7 +3,7 @@ package qr
 import (
 	"log"
 	"strings"
-	"zeril-bot/utils/bot"
+	"zeril-bot/utils/channel"
 
 	"github.com/skip2/go-qrcode"
 )
@@ -12,7 +12,7 @@ func SendQRImage(chatId int, text string) {
 	arr := strings.Fields(text)
 	args := arr[1:]
 	if len(args) == 0 {
-		bot.SendMessage(chatId, "Sử dụng cú pháp <code>/qr nội dung</code> để tạo mã QR.")
+		channel.SendMessage(chatId, "Sử dụng cú pháp <code>/qr nội dung</code> để tạo mã QR.")
 		return
 	}
 
@@ -23,5 +23,5 @@ func SendQRImage(chatId int, text string) {
 		log.Panic(err)
 	}
 
-	bot.SendAPhoto(chatId, path)
+	channel.SendPhoto(chatId, path)
 }

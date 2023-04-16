@@ -6,15 +6,14 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"zeril-bot/utils/bot"
+	"zeril-bot/utils/channel"
 	"zeril-bot/utils/structs"
 )
 
 func SendAQuote(chatId int) {
 	quote := getAQuote()
 	quoteFormat := fmt.Sprintf("&quot;%s&quot; - <b>%s</b>", quote.Quote, quote.Author)
-
-	bot.SendMessage(chatId, quoteFormat)
+	channel.SendMessage(chatId, quoteFormat)
 }
 
 func getAQuote() structs.QuoteData {
