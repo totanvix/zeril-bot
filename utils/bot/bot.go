@@ -3,7 +3,6 @@ package bot
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -19,31 +18,6 @@ var API_URL string = "https://api.telegram.org/bot" + os.Getenv("TELE_BOT_TOKEN"
 
 var chatType string
 var chatFrom structs.From
-
-func SendStartMessage(chatId int, name string) {
-	message := fmt.Sprintf("Xin chào %s \n\nGõ <code>/help</code> để xem danh sách các lệnh mà bot hỗ trợ nhé.\n\nBạn cũng có thể truy cập nhanh các chức năng bằng cách nhấn nút Menu bên dưới.", name)
-	SendMessage(chatId, message)
-}
-
-func SendHelpMessage(chatId int) {
-	messages := ""
-	botCommands := GetBotCommands()
-
-	for _, command := range botCommands.Result {
-		messages += fmt.Sprintf("<code>/%s</code> - %s\n\n", command.Command, command.Description)
-	}
-
-	SendMessage(chatId, messages)
-}
-
-func SendGroupId(chatId int, chatType string) {
-	if chatType == "group" {
-		SendMessage(chatId, fmt.Sprintf("Group ID: <code>%v</code>", chatId))
-		return
-	}
-
-	SendMessage(chatId, "Không tìm thấy nhóm, bạn cần thêm bot vào nhóm trước khi thực hiện lệnh này !")
-}
 
 func SendMessage(chatId int, message string) {
 	if chatType == "group" {
@@ -124,7 +98,6 @@ func SendPhoto(chatId int, path string) {
 	}
 	defer res.Body.Close()
 
-	fmt.Println(res, err)
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		log.Panic(err)

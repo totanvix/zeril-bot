@@ -9,6 +9,7 @@ import (
 	"zeril-bot/utils/bot"
 	"zeril-bot/utils/channel"
 	_ "zeril-bot/utils/channel"
+	"zeril-bot/utils/help"
 	"zeril-bot/utils/kqxs"
 	"zeril-bot/utils/lunar"
 	"zeril-bot/utils/qr"
@@ -47,11 +48,11 @@ func resolveCommand(data structs.HookData) {
 
 	switch command {
 	case "/start", "/start@zerill_bot":
-		bot.SendStartMessage(chatId, name)
+		help.SendStartMessage(chatId, name)
 	case "/help", "/help@zerill_bot":
-		bot.SendHelpMessage(chatId)
+		help.SendHelpMessage(chatId)
 	case "/groupid", "/groupid@zerill_bot":
-		bot.SendGroupId(chatId, string(data.Message.Chat.Type))
+		help.SendGroupId(chatId, string(data.Message.Chat.Type))
 	case "/quote", "/quote@zerill_bot":
 		quote.SendAQuote(chatId)
 	case "/lunar", "/lunar@zerill_bot":
