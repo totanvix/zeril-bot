@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 	"time"
-	"zeril-bot/utils/bot"
+	"zeril-bot/utils/channel"
 
 	"github.com/oliamb/cutter"
 )
@@ -19,7 +19,7 @@ func SendLunarDateNow(chatId int) {
 
 	downloadAndCropImage(fmt.Sprintf("https://licham365.vn/images/lich-am-ngay-%v-thang-%v-nam-%v.jpg", d, int(m), y), path)
 
-	bot.SendAPhoto(chatId, path)
+	channel.SendPhoto(chatId, path)
 }
 
 func downloadAndCropImage(URL, fileName string) error {

@@ -3,7 +3,8 @@ package kqxs
 import (
 	"fmt"
 	"strings"
-	"zeril-bot/utils/bot"
+	"zeril-bot/utils/channel"
+	"zeril-bot/utils/structs"
 
 	"github.com/mmcdole/gofeed"
 )
@@ -33,16 +34,16 @@ func Send(chatId int, text string) {
 			message = strings.Replace(message, "ĐB:", "\n\nĐB:", -1)
 		}
 
-		bot.SendMessage(chatId, feed.Items[0].Title+message)
+		channel.SendMessage(chatId, feed.Items[0].Title+message)
 	default:
-		bot.SendMessage(chatId, "Tôi không hiểu câu lệnh của bạn !!!")
+		channel.SendMessage(chatId, "Tôi không hiểu câu lệnh của bạn !!!")
 	}
 
 }
 
 func SendSuggest(chatId int, args []string) {
-	var buttons []bot.ButtonCallback
-	var btn1, btn2, btn3 bot.ButtonCallback
+	var buttons []structs.ButtonCallback
+	var btn1, btn2, btn3 structs.ButtonCallback
 
 	btn1.Text = "Miền Nam"
 	btn1.CallbackData = "/kqxs mien-nam-xsmn"
@@ -58,7 +59,7 @@ func SendSuggest(chatId int, args []string) {
 	buttons = append(buttons, btn3)
 
 	if len(args) == 0 {
-		bot.SendMessageWithReplyMarkup(chatId, "Hãy chọn khu vực muốn xem kết quả xổ số", buttons)
+		channel.SendMessageWithReplyMarkup(chatId, "Hãy chọn khu vực muốn xem kết quả xổ số", buttons)
 		return
 	}
 }

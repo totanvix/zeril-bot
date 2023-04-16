@@ -57,7 +57,7 @@ func Recoverer(next http.Handler) http.Handler {
 			resp := make(map[string]string)
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-
+			// fmt.Println("After R")
 			if rvr := recover(); rvr != nil {
 				resp["status"] = "ERROR"
 				resp["message"] = rvr.(string)

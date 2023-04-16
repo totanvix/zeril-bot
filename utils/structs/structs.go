@@ -66,3 +66,30 @@ type BotCommands struct {
 		Description string `json:"description"`
 	}
 }
+
+type SendMessage struct {
+	ChatId  int
+	Message string
+}
+
+type SendPhoto struct {
+	ChatId int
+	Path   string
+}
+
+type SendMessageWithReplyMarkup struct {
+	ChatId    int
+	Message   string
+	ReplyMark []ButtonCallback
+}
+
+type BodyReplyMarkup struct {
+	ReplyMarkup struct {
+		InlineKeyboard [][]ButtonCallback `json:"inline_keyboard"`
+	} `json:"reply_markup"`
+}
+
+type ButtonCallback struct {
+	Text         string `json:"text"`
+	CallbackData string `json:"callback_data"`
+}

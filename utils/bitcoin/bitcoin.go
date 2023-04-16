@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"zeril-bot/utils/bot"
+	"zeril-bot/utils/channel"
 	"zeril-bot/utils/structs"
 
 	"github.com/leekchan/accounting"
@@ -26,7 +26,7 @@ func SendBitcoinPrice(chatId int) {
 
 	message := fmt.Sprintf("1 Bitcoin = %s (<b>%s</b>)", usd, vnd)
 
-	bot.SendMessage(chatId, message)
+	channel.SendMessage(chatId, message)
 }
 
 func getBitcoinPrice() structs.Btc {

@@ -3,7 +3,6 @@ package bot
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -19,31 +18,6 @@ var API_URL string = "https://api.telegram.org/bot" + os.Getenv("TELE_BOT_TOKEN"
 
 var chatType string
 var chatFrom structs.From
-
-func SendStartMessage(chatId int, name string) {
-	message := fmt.Sprintf("Xin chào %s \n\nGõ <code>/help</code> để xem danh sách các lệnh mà bot hỗ trợ nhé.\n\nBạn cũng có thể truy cập nhanh các chức năng bằng cách nhấn nút Menu bên dưới.", name)
-	SendMessage(chatId, message)
-}
-
-func SendHelpMessage(chatId int) {
-	messages := ""
-	botCommands := GetBotCommands()
-
-	for _, command := range botCommands.Result {
-		messages += fmt.Sprintf("<code>/%s</code> - %s\n\n", command.Command, command.Description)
-	}
-
-	SendMessage(chatId, messages)
-}
-
-func SendGroupId(chatId int, chatType string) {
-	if chatType == "group" {
-		SendMessage(chatId, fmt.Sprintf("Group ID: <code>%v</code>", chatId))
-		return
-	}
-
-	SendMessage(chatId, "Không tìm thấy nhóm, bạn cần thêm bot vào nhóm trước khi thực hiện lệnh này !")
-}
 
 func SendMessage(chatId int, message string) {
 	if chatType == "group" {
@@ -95,9 +69,11 @@ func SendMessage(chatId int, message string) {
 	log.Println("SendMessage OK")
 }
 
-func SendAPhoto(chatId int, path string) {
+func SendPhoto(chatId int, path string) {
 	uri := API_URL + "/sendPhoto"
-	method := "GET"
+
+	file, _ := os.Open(path)
+	defer file.Close()
 
 	payload := &bytes.Buffer{}
 	writer := multipart.NewWriter(payload)
@@ -107,27 +83,15 @@ func SendAPhoto(chatId int, path string) {
 		writer.WriteField("caption", "@"+chatFrom.Username)
 	}
 
-	file, errFile2 := os.Open(path)
-	defer file.Close()
+	part, _ := writer.CreateFormFile("photo", filepath.Base(path))
+	io.Copy(part, file)
 
-	part2, errFile2 := writer.CreateFormFile("photo", filepath.Base(path))
-	_, errFile2 = io.Copy(part2, file)
-	if errFile2 != nil {
-		log.Panic(errFile2)
-	}
+	writer.Close()
 
-	err := writer.Close()
-	if err != nil {
-		log.Panic(err)
-	}
+	req, _ := http.NewRequest("GET", uri, payload)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	client := &http.Client{}
-	req, err := http.NewRequest(method, uri, payload)
-
-	if err != nil {
-		log.Panic(err)
-	}
-	req.Header.Set("Content-Type", writer.FormDataContentType())
 	res, err := client.Do(req)
 	if err != nil {
 		log.Panic(err)
@@ -150,24 +114,13 @@ func SendAPhoto(chatId int, path string) {
 		log.Panic(string(body))
 	}
 
-	log.Println("SendAPhoto OK")
+	log.Println("SendPhoto OK")
 }
 
-type BodyReplyMarkup struct {
-	ReplyMarkup struct {
-		InlineKeyboard [][]ButtonCallback `json:"inline_keyboard"`
-	} `json:"reply_markup"`
-}
-
-type ButtonCallback struct {
-	Text         string `json:"text"`
-	CallbackData string `json:"callback_data"`
-}
-
-func SendMessageWithReplyMarkup(chatId int, message string, replyMark []ButtonCallback) {
+func SendMessageWithReplyMarkup(chatId int, message string, replyMark []structs.ButtonCallback) {
 	uri := API_URL + "/sendMessage"
 
-	var markup BodyReplyMarkup
+	var markup structs.BodyReplyMarkup
 	markup.ReplyMarkup.InlineKeyboard = append(markup.ReplyMarkup.InlineKeyboard, replyMark)
 	marshalled, err := json.Marshal(markup)
 
@@ -250,6 +203,8 @@ func SetTypingAction(chatId int) {
 	if body != nil {
 		log.Println("SetTypingAction OK")
 	}
+
+	// channel.GetWg().Done()
 }
 
 func GetBotCommands() structs.BotCommands {
