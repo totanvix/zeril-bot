@@ -1,7 +1,9 @@
 package channel
 
 import (
+	"log"
 	"sync"
+	"time"
 	"zeril-bot/utils/bot"
 	"zeril-bot/utils/structs"
 )
@@ -17,12 +19,17 @@ func init() {
 			select {
 			case sm := <-sendMessageChan:
 				bot.SendMessage(sm.ChatId, sm.Message)
+				Wg.Done()
 			case sp := <-sendPhotoChan:
 				bot.SendPhoto(sp.ChatId, sp.Path)
+				Wg.Done()
 			case srm := <-sendMessageWithReplyMarkupChan:
 				bot.SendMessageWithReplyMarkup(srm.ChatId, srm.Message, srm.ReplyMark)
+				Wg.Done()
+			case <-time.After(3 * time.Second):
+				log.Println("Timeout")
+				Wg.Done()
 			}
-			Wg.Done()
 		}
 	}()
 }
