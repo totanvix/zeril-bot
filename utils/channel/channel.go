@@ -13,7 +13,7 @@ var sendPhotoChan = make(chan structs.SendPhoto)
 var sendMessageWithReplyMarkupChan = make(chan structs.SendMessageWithReplyMarkup)
 var Wg sync.WaitGroup
 
-func init() {
+func Create() {
 	go func() {
 		for {
 			select {

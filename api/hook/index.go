@@ -8,7 +8,6 @@ import (
 	"zeril-bot/utils/bitcoin"
 	"zeril-bot/utils/bot"
 	"zeril-bot/utils/channel"
-	_ "zeril-bot/utils/channel"
 	"zeril-bot/utils/help"
 	"zeril-bot/utils/kqxs"
 	"zeril-bot/utils/lunar"

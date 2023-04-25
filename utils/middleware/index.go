@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"runtime/debug"
 	"zeril-bot/utils/bot"
+	"zeril-bot/utils/channel"
 	"zeril-bot/utils/structs"
 
 	"github.com/go-chi/chi/v5/middleware"
@@ -22,6 +23,8 @@ func PreRequest(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 			return
 		}
+
+		channel.Create()
 
 		if data.Message.Text == "" && data.CallbackQuery.Data == "" {
 			w.Header().Set("Content-Type", "application/json")
