@@ -14,3 +14,11 @@ Zeril bot is my practice using Go
 * random - Chọn ra một phần tử ngẫu nhiên trong các phần tử
 * kqxs - Xem kết quả xổ số ba miền
 * shortener - Rút gọn liên kết
+
+## Lesson Learned
+* Go
+* Vercel Serverless Function
+* Telegram Bot API
+* Github Action
+* RSS
+* Redis
