@@ -14,25 +14,3 @@ Zeril bot is my practice using Go
 * random - Chọn ra một phần tử ngẫu nhiên trong các phần tử
 * kqxs - Xem kết quả xổ số ba miền
 * shortener - Rút gọn liên kết
-
-
-## Technologies
-* [Telegram bot](https://core.telegram.org/bots/api)
-* [Vercel serverless function](https://vercel.com)
-* [Redis Server](https://upstash.com)
-* [Github Actions](https://docs.github.com/en/actions)
-* [go-chi](https://github.com/go-chi/chi)
-* [cutter](https://github.com/oliamb/cutter)
-* [go-qrcode](https://github.com/skip2/go-qrcode)
-* [go-redis](https://github.com/redis/go-redis)
-* [go-nanoid](https://github.com/matoous/go-nanoid)
-
-## API and RSS
-* https://exchangerate.host
-* https://core.telegram.org/bots/api
-* https://xosothienphu.com
-* https://licham365.vn
-* https://zenquotes.io
-* https://openweathermap.org
-
-## Thank for all of you
