@@ -1,6 +1,6 @@
 # Zeril Bot
 
-Zeril bot is my practice using Go
+[Zeril Bot](https://t.me/zerill_bot) is my practice using Go
 
 ## Bot Commands
 * start - Bắt đầu trò chuyện với Zeril
