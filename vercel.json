@@ -5,6 +5,10 @@
       "dest": "/api/url/index.go"
     },
     {
+      "src": "/trip/(.*)",
+      "dest": "/api/trip/index.go"
+    },
+    {
       "src": "/(.*)",
       "dest": "/api/index.go"
     }

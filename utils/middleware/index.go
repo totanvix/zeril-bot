@@ -15,6 +15,13 @@ import (
 
 func PreRequest(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+
+		if path == "/trip" {
+			next.ServeHTTP(w, r)
+			return
+		}
+
 		var data structs.HookData
 		err := json.NewDecoder(r.Body).Decode(&data)
 
@@ -57,6 +64,11 @@ func PreRequest(next http.Handler) http.Handler {
 func Recoverer(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
+			path := r.URL.Path
+			if path == "/trip" {
+				return
+			}
+
 			resp := make(map[string]string)
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
