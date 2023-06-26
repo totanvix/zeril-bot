@@ -1,6 +1,7 @@
 package hook
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,7 +13,6 @@ import (
 	"zeril-bot/utils/kqxs"
 	"zeril-bot/utils/lunar"
 	"zeril-bot/utils/qr"
-	"zeril-bot/utils/quote"
 	"zeril-bot/utils/random"
 	"zeril-bot/utils/shortener"
 	"zeril-bot/utils/structs"
@@ -20,17 +20,33 @@ import (
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
-	data := r.Context().Value("data").(structs.HookData)
-
-	channel.GetWg().Add(2)
-
-	if data.CallbackQuery.Data != "" {
-		resolveCallback(data)
-	} else {
-		resolveCommand(data)
+	var data structs.HookData
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		panic(err)
 	}
 
-	channel.GetWg().Wait()
+	bot := bot.NewBot(data)
+	res := make(map[string]string)
+
+	err = bot.ResolveHook()
+	if err != nil {
+		res["status"] = "ERROR"
+		res["code"] = "internal_error"
+		res["message"] = err.Error()
+		Response(w, res, http.StatusInternalServerError)
+		return
+	}
+
+	res["status"] = "OK"
+	Response(w, res, http.StatusOK)
+}
+
+func Response(w http.ResponseWriter, res map[string]string, httpStatus int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(httpStatus)
+	mRes, _ := json.Marshal(res)
+	w.Write(mRes)
 }
 
 func resolveCommand(data structs.HookData) {
@@ -53,7 +69,7 @@ func resolveCommand(data structs.HookData) {
 	case "/groupid", "/groupid@zerill_bot":
 		help.SendGroupId(chatId, string(data.Message.Chat.Type))
 	case "/quote", "/quote@zerill_bot":
-		quote.SendAQuote(chatId)
+		// quote.SendAQuote(chatId)
 	case "/lunar", "/lunar@zerill_bot":
 		lunar.SendLunarDateNow(chatId)
 	case "/weather", "/weather@zerill_bot":
@@ -96,7 +112,7 @@ func resolveCallback(callback structs.HookData) {
 
 func setBotIsTyping(chatId int) {
 	go func() {
-		bot.SetTypingAction(chatId)
-		channel.GetWg().Done()
+		// bot.SetTypingAction(chatId)
+		// channel.GetWg().Done()
 	}()
 }

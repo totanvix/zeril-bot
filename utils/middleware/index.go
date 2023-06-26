@@ -64,18 +64,14 @@ func PreRequest(next http.Handler) http.Handler {
 func Recoverer(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
-			path := r.URL.Path
-			if path == "/trip" {
-				return
-			}
-
-			resp := make(map[string]string)
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			// fmt.Println("After R")
 			if rvr := recover(); rvr != nil {
+				resp := make(map[string]string)
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+
 				resp["status"] = "ERROR"
 				resp["message"] = rvr.(string)
+				jsonResp, _ := json.Marshal(resp)
 
 				logEntry := middleware.GetLogEntry(r)
 				if logEntry != nil {
@@ -84,15 +80,40 @@ func Recoverer(next http.Handler) http.Handler {
 					middleware.PrintPrettyStack(rvr)
 				}
 
-			} else {
-				resp["status"] = "OK"
+				w.Write(jsonResp)
 			}
-			jsonResp, _ := json.Marshal(resp)
-			w.Write(jsonResp)
 		}()
 
 		next.ServeHTTP(w, r)
 	}
 
 	return http.HandlerFunc(fn)
+}
+
+func Handle404NotFound() func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(404)
+
+		res := make(map[string]string)
+		res["status"] = "ERROR"
+		res["error"] = "http.error"
+		res["message"] = "route does not exist"
+
+		mRes, _ := json.Marshal(res)
+		w.Write(mRes)
+	}
+}
+
+func Handle405MethodNotAllowed() func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(405)
+
+		res := make(map[string]string)
+		res["status"] = "ERROR"
+		res["error"] = "http.error"
+		res["message"] = "method is not valid"
+
+		mRes, _ := json.Marshal(res)
+		w.Write(mRes)
+	}
 }

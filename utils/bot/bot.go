@@ -11,13 +11,99 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
+
+	// "zeril-bot/utils/quote"
+	"zeril-bot/utils/quote"
 	"zeril-bot/utils/structs"
+	"zeril-bot/utils/telegram"
 )
 
 var API_URL string = "https://api.telegram.org/bot" + os.Getenv("TELE_BOT_TOKEN")
 
 var chatType string
 var chatFrom structs.From
+
+type Bot struct {
+	HookData  structs.HookData
+	typingCh  chan struct{}
+	commandCh chan error
+}
+
+func NewBot(hookData structs.HookData) *Bot {
+	tCh := make(chan struct{})
+	commandCh := make(chan error)
+
+	return &Bot{hookData, tCh, commandCh}
+}
+
+func (b Bot) ResolveHook() error {
+	go b.setTypingAction()
+
+	var err error
+
+	switch {
+	case b.isCommand():
+		go b.resolveCommand()
+	case b.isCallbackCommand():
+		go b.resolveCallbackCommand()
+	}
+
+	// to do refactor
+	<-b.typingCh
+	err = <-b.commandCh
+
+	return err
+}
+
+func (b Bot) resolveCommand() error {
+	var err error
+
+	defer func() {
+		b.commandCh <- err
+	}()
+
+	data := b.HookData
+	name := data.Message.From.FirstName
+	chatId := data.Message.Chat.ID
+	text := data.Message.Text
+	arr := strings.Fields(text)
+
+	log.Printf("Yêu cầu từ bạn %s: %s", name, text)
+
+	tData := telegram.Data{
+		ChatId:   chatId,
+		ChatType: "",
+		Username: "",
+	}
+
+	command := arr[0]
+
+	switch command {
+	case "/quote", "/quote@zerill_bot":
+		err = quote.SendAQuote(tData)
+	default:
+		// channel.SendMessage(chatId, "Tôi không hiểu câu lệnh của bạn !!!")
+	}
+
+	return nil
+}
+
+func (b Bot) resolveCallbackCommand() error {
+	return nil
+}
+
+func (b Bot) isCommand() bool {
+	return b.HookData.CallbackQuery.Data == ""
+}
+
+func (b Bot) isCallbackCommand() bool {
+	return b.HookData.CallbackQuery.Data != ""
+}
+
+func (b Bot) getApiURL() string {
+	return "https://api.telegram.org/bot" + os.Getenv("TELE_BOT_TOKEN")
+}
 
 func SendMessage(chatId int, message string) {
 	if chatType == "group" {
@@ -168,10 +254,13 @@ func SendMessageWithReplyMarkup(chatId int, message string, replyMark []structs.
 	log.Println("SendMessageWithReplyMarkup OK")
 }
 
-func SetTypingAction(chatId int) {
-	uri := API_URL + "/sendChatAction"
-	req, err := http.NewRequest("GET", uri, nil)
+func (b Bot) setTypingAction() {
+	defer close(b.typingCh)
 
+	url := b.getApiURL()
+	chatId := b.HookData.Message.Chat.ID
+
+	req, err := http.NewRequest("GET", url+"/sendChatAction", nil)
 	if err != nil {
 		log.Println(err)
 		return

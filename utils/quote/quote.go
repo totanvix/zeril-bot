@@ -4,35 +4,41 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
-	"zeril-bot/utils/channel"
 	"zeril-bot/utils/structs"
+	"zeril-bot/utils/telegram"
 )
 
-func SendAQuote(chatId int) {
-	quote := getAQuote()
+func SendAQuote(data telegram.Data) error {
+	quote, err := getAQuote()
+	if err != nil {
+		return err
+	}
+
 	quoteFormat := fmt.Sprintf("&quot;%s&quot; - <b>%s</b>", quote.Quote, quote.Author)
-	channel.SendMessage(chatId, quoteFormat)
+	data.Message = quoteFormat
+
+	return telegram.SendMessage(data)
 }
 
-func getAQuote() structs.QuoteData {
+func getAQuote() (*structs.QuoteData, error) {
 	res, err := http.Get("https://zenquotes.io/api/random")
-
 	if err != nil {
-		log.Panic(err)
+		return nil, err
 	}
 
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	var data []structs.QuoteData
 	err = json.Unmarshal(body, &data)
-
 	if err != nil {
-		log.Panic(err)
+		return nil, err
 	}
 
-	return data[0]
+	return &data[0], nil
 }
