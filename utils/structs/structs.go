@@ -93,3 +93,13 @@ type ButtonCallback struct {
 	Text         string `json:"text"`
 	CallbackData string `json:"callback_data"`
 }
+
+type DataTele struct {
+	ChatId       int
+	ChatType     string
+	FirstName    string
+	Username     string
+	ReplyMessage string
+	RawMessage   string
+	Command      string
+}

@@ -7,19 +7,23 @@ import (
 	"net/http"
 	"os"
 	"time"
-	"zeril-bot/utils/channel"
+	"zeril-bot/utils/structs"
+	"zeril-bot/utils/telegram"
 
 	"github.com/oliamb/cutter"
 )
 
-func SendLunarDateNow(chatId int) {
+func SendLunarDateNow(data structs.DataTele) error {
 	y, m, d := time.Now().Date()
 
 	path := "/tmp/lunar.jpg"
 
-	downloadAndCropImage(fmt.Sprintf("https://licham365.vn/images/lich-am-ngay-%v-thang-%v-nam-%v.jpg", d, int(m), y), path)
+	err := downloadAndCropImage(fmt.Sprintf("https://licham365.vn/images/lich-am-ngay-%v-thang-%v-nam-%v.jpg", d, int(m), y), path)
+	if err != nil {
+		return err
+	}
 
-	channel.SendPhoto(chatId, path)
+	return telegram.SendPhoto(data, path)
 }
 
 func downloadAndCropImage(URL, fileName string) error {

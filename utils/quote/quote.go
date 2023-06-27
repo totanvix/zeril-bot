@@ -9,14 +9,14 @@ import (
 	"zeril-bot/utils/telegram"
 )
 
-func SendAQuote(data telegram.Data) error {
+func SendAQuote(data structs.DataTele) error {
 	quote, err := getAQuote()
 	if err != nil {
 		return err
 	}
 
 	quoteFormat := fmt.Sprintf("&quot;%s&quot; - <b>%s</b>", quote.Quote, quote.Author)
-	data.Message = quoteFormat
+	data.ReplyMessage = quoteFormat
 
 	return telegram.SendMessage(data)
 }

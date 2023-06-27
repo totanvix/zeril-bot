@@ -12,16 +12,16 @@ import (
 )
 
 func Handler(wri http.ResponseWriter, req *http.Request) {
-
 	r := chi.NewRouter()
 	r.Use(chiMiddle.Logger)
-	// r.Use(middleware.PreRequest)
 	r.Use(middleware.Recoverer)
 
 	r.NotFound(middleware.Handle404NotFound())
 	r.MethodNotAllowed(middleware.Handle405MethodNotAllowed())
 
-	// r.Get("/", func(w http.ResponseWriter, r *http.Request) {})
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Hi there !"))
+	})
 	r.Post("/api/hook", hook.Handler)
 	r.Get("/url", url.Handler)
 	r.Get("/trip", trip.Handler)

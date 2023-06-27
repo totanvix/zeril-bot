@@ -1,28 +1,21 @@
 package bot
 
 import (
-	"bytes"
-	"encoding/json"
-	"io"
-	"io/ioutil"
+	"fmt"
 	"log"
-	"mime/multipart"
-	"net/http"
-	"os"
-	"path/filepath"
-	"strconv"
 	"strings"
 
-	// "zeril-bot/utils/quote"
+	"zeril-bot/utils/bitcoin"
+	"zeril-bot/utils/kqxs"
+	"zeril-bot/utils/lunar"
+	"zeril-bot/utils/qr"
 	"zeril-bot/utils/quote"
+	"zeril-bot/utils/random"
+	"zeril-bot/utils/shortener"
 	"zeril-bot/utils/structs"
 	"zeril-bot/utils/telegram"
+	"zeril-bot/utils/weather"
 )
-
-var API_URL string = "https://api.telegram.org/bot" + os.Getenv("TELE_BOT_TOKEN")
-
-var chatType string
-var chatFrom structs.From
 
 type Bot struct {
 	HookData  structs.HookData
@@ -38,9 +31,9 @@ func NewBot(hookData structs.HookData) *Bot {
 }
 
 func (b Bot) ResolveHook() error {
-	go b.setTypingAction()
-
 	var err error
+
+	go b.setTypingAction()
 
 	switch {
 	case b.isCommand():
@@ -56,6 +49,23 @@ func (b Bot) ResolveHook() error {
 	return err
 }
 
+func (b Bot) getTelegramData() structs.DataTele {
+	data := b.HookData
+	rawMessage := b.getRawMessage()
+	name := data.Message.From.FirstName
+
+	log.Printf("Yêu cầu từ bạn %s: %s", name, rawMessage)
+
+	return structs.DataTele{
+		ChatId:     b.getChatId(),
+		ChatType:   b.getChatType(),
+		Username:   b.getUsername(),
+		FirstName:  b.getFirstName(),
+		RawMessage: rawMessage,
+		Command:    b.getCommand(),
+	}
+}
+
 func (b Bot) resolveCommand() error {
 	var err error
 
@@ -63,34 +73,55 @@ func (b Bot) resolveCommand() error {
 		b.commandCh <- err
 	}()
 
-	data := b.HookData
-	name := data.Message.From.FirstName
-	chatId := data.Message.Chat.ID
-	text := data.Message.Text
-	arr := strings.Fields(text)
+	data := b.getTelegramData()
 
-	log.Printf("Yêu cầu từ bạn %s: %s", name, text)
-
-	tData := telegram.Data{
-		ChatId:   chatId,
-		ChatType: "",
-		Username: "",
-	}
-
-	command := arr[0]
-
-	switch command {
+	switch data.Command {
+	case "/start", "/start@zerill_bot":
+		err = b.sendStartMessage(data)
+	case "/help", "/help@zerill_bot":
+		err = b.sendHelpMessage(data)
 	case "/quote", "/quote@zerill_bot":
-		err = quote.SendAQuote(tData)
+		err = quote.SendAQuote(data)
+	case "/groupid", "/groupid@zerill_bot":
+		err = b.sendGroupId(data)
+	case "/lunar", "/lunar@zerill_bot":
+		err = lunar.SendLunarDateNow(data)
+	case "/weather", "/weather@zerill_bot":
+		err = weather.SendForecastOfWeather(data)
+	case "/bitcoin", "/bitcoin@zerill_bot":
+		err = bitcoin.SendBitcoinPrice(data)
+	case "/qr", "/qr@zerill_bot":
+		err = qr.SendQRImage(data)
+	case "/random", "/random@zerill_bot":
+		err = random.RandomElements(data)
+	case "/kqxs", "/kqxs@zerill_bot":
+		err = kqxs.Send(data)
+	case "/shortener", "/shortener@zerill_bot":
+		shortener.Generate(data)
 	default:
-		// channel.SendMessage(chatId, "Tôi không hiểu câu lệnh của bạn !!!")
+		err = b.invalidCommand(data)
 	}
 
-	return nil
+	return err
 }
 
 func (b Bot) resolveCallbackCommand() error {
-	return nil
+	var err error
+
+	defer func() {
+		b.commandCh <- err
+	}()
+
+	data := b.getTelegramData()
+
+	switch data.Command {
+	case "/weather":
+		err = weather.SendForecastOfWeather(data)
+	case "/kqxs":
+		err = kqxs.Send(data)
+	}
+
+	return err
 }
 
 func (b Bot) isCommand() bool {
@@ -101,243 +132,96 @@ func (b Bot) isCallbackCommand() bool {
 	return b.HookData.CallbackQuery.Data != ""
 }
 
-func (b Bot) getApiURL() string {
-	return "https://api.telegram.org/bot" + os.Getenv("TELE_BOT_TOKEN")
+func (b Bot) getChatType() string {
+	if b.isCallbackCommand() {
+		return b.HookData.Message.Chat.Type
+	}
+	return b.HookData.Message.Chat.Type
 }
 
-func SendMessage(chatId int, message string) {
-	if chatType == "group" {
-		message = message + "\n@" + chatFrom.Username
+func (b Bot) getUsername() string {
+	if b.isCallbackCommand() {
+		return b.HookData.CallbackQuery.From.Username
 	}
-
-	uri := API_URL + "/sendMessage"
-	req, err := http.NewRequest("GET", uri, nil)
-
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	q := req.URL.Query()
-	q.Add("chat_id", strconv.Itoa(chatId))
-	q.Add("text", message)
-	q.Add("parse_mode", "html")
-
-	req.URL.RawQuery = q.Encode()
-
-	client := &http.Client{}
-
-	res, err := client.Do(req)
-
-	if err != nil {
-		log.Panic(err)
-	}
-
-	defer res.Body.Close()
-
-	body, err := ioutil.ReadAll(res.Body)
-
-	if err != nil {
-		log.Panic(err)
-	}
-
-	var status structs.Status
-
-	err = json.Unmarshal(body, &status)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	if status.Ok == false {
-		log.Panic(string(body))
-	}
-
-	log.Println("SendMessage OK")
+	return b.HookData.Message.From.Username
 }
 
-func SendPhoto(chatId int, path string) {
-	uri := API_URL + "/sendPhoto"
-
-	file, _ := os.Open(path)
-	defer file.Close()
-
-	payload := &bytes.Buffer{}
-	writer := multipart.NewWriter(payload)
-	writer.WriteField("chat_id", strconv.Itoa(chatId))
-
-	if chatType == "group" {
-		writer.WriteField("caption", "@"+chatFrom.Username)
+func (b Bot) getRawMessage() string {
+	if b.isCallbackCommand() {
+		return b.HookData.CallbackQuery.Data
 	}
-
-	part, _ := writer.CreateFormFile("photo", filepath.Base(path))
-	io.Copy(part, file)
-
-	writer.Close()
-
-	req, _ := http.NewRequest("GET", uri, payload)
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-
-	client := &http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer res.Body.Close()
-
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	var status structs.Status
-
-	err = json.Unmarshal(body, &status)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	if status.Ok == false {
-		log.Panic(string(body))
-	}
-
-	log.Println("SendPhoto OK")
+	return b.HookData.Message.Text
 }
 
-func SendMessageWithReplyMarkup(chatId int, message string, replyMark []structs.ButtonCallback) {
-	uri := API_URL + "/sendMessage"
+func (b Bot) getCommand() string {
+	var arr []string
 
-	var markup structs.BodyReplyMarkup
-	markup.ReplyMarkup.InlineKeyboard = append(markup.ReplyMarkup.InlineKeyboard, replyMark)
-	marshalled, err := json.Marshal(markup)
-
-	req, err := http.NewRequest("GET", uri, bytes.NewReader(marshalled))
-	req.Header.Add("Content-Type", "application/json")
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if chatType == "group" {
-		message = message + "\n@" + chatFrom.Username
+	if b.isCallbackCommand() {
+		data := b.HookData.CallbackQuery.Data
+		arr = strings.Fields(data)
+	} else {
+		text := b.HookData.Message.Text
+		arr = strings.Fields(text)
 	}
 
-	q := req.URL.Query()
-	q.Add("chat_id", strconv.Itoa(chatId))
-	q.Add("text", message)
-	q.Add("parse_mode", "html")
+	return arr[0]
+}
 
-	req.URL.RawQuery = q.Encode()
-
-	client := &http.Client{}
-
-	res, err := client.Do(req)
-	if err != nil {
-		log.Panic(err)
+func (b Bot) getChatId() int {
+	if b.isCallbackCommand() {
+		return b.HookData.CallbackQuery.Message.Chat.ID
 	}
-	defer res.Body.Close()
+	return b.HookData.Message.Chat.ID
+}
 
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		log.Panic(err)
+func (b Bot) getFirstName() string {
+	if b.isCallbackCommand() {
+		return b.HookData.CallbackQuery.Message.From.FirstName
 	}
-
-	var status structs.Status
-
-	err = json.Unmarshal(body, &status)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	if status.Ok == false {
-		log.Panic(string(body))
-	}
-
-	log.Println("SendMessageWithReplyMarkup OK")
+	return b.HookData.Message.From.FirstName
 }
 
 func (b Bot) setTypingAction() {
 	defer close(b.typingCh)
 
-	url := b.getApiURL()
-	chatId := b.HookData.Message.Chat.ID
-
-	req, err := http.NewRequest("GET", url+"/sendChatAction", nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	q := req.URL.Query()
-	q.Add("chat_id", strconv.Itoa(chatId))
-	q.Add("action", "typing")
-
-	req.URL.RawQuery = q.Encode()
-
-	client := &http.Client{}
-
-	res, err := client.Do(req)
-
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	defer res.Body.Close()
-
-	body, err := ioutil.ReadAll(res.Body)
-
-	if err != nil {
-		log.Panic(err)
-	}
-
-	if body != nil {
-		log.Println("SetTypingAction OK")
-	}
-
-	// channel.GetWg().Done()
+	data := b.getTelegramData()
+	telegram.SetTypingAction(data)
 }
 
-func GetBotCommands() structs.BotCommands {
-	uri := API_URL + "/getMyCommands"
-	req, err := http.NewRequest("GET", uri, nil)
-
-	if err != nil {
-		log.Panic(err)
-	}
-
-	client := &http.Client{}
-
-	res, err := client.Do(req)
-
-	if err != nil {
-		log.Panic(err)
-	}
-
-	defer res.Body.Close()
-
-	body, err := ioutil.ReadAll(res.Body)
-
-	if err != nil {
-		log.Panic(err)
-	}
-
-	var botCommands structs.BotCommands
-
-	err = json.Unmarshal(body, &botCommands)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	if botCommands.Ok == false {
-		log.Fatalln(string(body))
-	}
-
-	log.Println("GetBotCommands OK")
-	return botCommands
+func (b Bot) sendStartMessage(data structs.DataTele) error {
+	message := fmt.Sprintf("Xin chào %s \n\nGõ <code>/help</code> để xem danh sách các lệnh mà bot hỗ trợ nhé.\n\nBạn cũng có thể truy cập nhanh các chức năng bằng cách nhấn nút Menu bên dưới.", data.FirstName)
+	data.ReplyMessage = message
+	return telegram.SendMessage(data)
 }
 
-func SetChatFrom(chat structs.From) {
-	chatFrom = chat
+func (b Bot) sendHelpMessage(data structs.DataTele) error {
+	messages := ""
+	botCommands := b.getBotCommands()
+
+	for _, command := range botCommands.Result {
+		messages += fmt.Sprintf("<code>/%s</code> - %s\n\n", command.Command, command.Description)
+	}
+
+	data.ReplyMessage = messages
+
+	return telegram.SendMessage(data)
 }
-func SetChatType(t string) {
-	chatType = t
+
+func (b Bot) getBotCommands() structs.BotCommands {
+	return telegram.GetBotCommands()
+}
+
+func (b Bot) sendGroupId(data structs.DataTele) error {
+	if data.ChatType == "group" {
+		data.ReplyMessage = fmt.Sprintf("Group ID: <code>%v</code>", data.ChatId)
+	} else {
+		data.ReplyMessage = "Không tìm thấy nhóm, bạn cần thêm bot vào nhóm trước khi thực hiện lệnh này !"
+	}
+
+	return telegram.SendMessage(data)
+}
+
+func (b Bot) invalidCommand(data structs.DataTele) error {
+	data.ReplyMessage = "Tôi không hiểu câu lệnh của bạn !!!"
+	return telegram.SendMessage(data)
 }

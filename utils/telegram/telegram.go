@@ -17,25 +17,31 @@ import (
 
 var API_URL string = "https://api.telegram.org/bot" + os.Getenv("TELE_BOT_TOKEN")
 
-func getApiURL() string {
-	return "https://api.telegram.org/bot" + os.Getenv("TELE_BOT_TOKEN")
+func getApiURL(t string) string {
+	url := "https://api.telegram.org/bot" + os.Getenv("TELE_BOT_TOKEN")
+
+	switch t {
+	case "sendMessage":
+		return url + "/sendMessage"
+	case "sendPhoto":
+		return url + "/sendPhoto"
+	case "sendChatAction":
+		return url + "/sendChatAction"
+	case "getMyCommands":
+		return url + "/getMyCommands"
+	default:
+		return ""
+	}
 }
 
-type Data struct {
-	ChatId   int
-	ChatType string
-	Username string
-	Message  string
-}
-
-func SendMessage(data Data) error {
-	message := data.Message
+func SendMessage(data structs.DataTele) error {
+	message := data.ReplyMessage
 	if data.ChatType == "group" {
-		message = message + "\n@" + data.Username
+		message += "\n@" + data.Username
 	}
 
-	uri := API_URL + "/sendMessage"
-	req, err := http.NewRequest("GET", uri, nil)
+	url := getApiURL("sendMessage")
+	req, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
 		return err
@@ -79,73 +85,76 @@ func SendMessage(data Data) error {
 	return errors.New(string(body))
 }
 
-func SendPhoto(chatId int, path string) {
-	uri := API_URL + "/sendPhoto"
-
+func SendPhoto(data structs.DataTele, path string) error {
 	file, _ := os.Open(path)
 	defer file.Close()
 
 	payload := &bytes.Buffer{}
 	writer := multipart.NewWriter(payload)
-	writer.WriteField("chat_id", strconv.Itoa(chatId))
+	writer.WriteField("chat_id", strconv.Itoa(data.ChatId))
 
-	// if chatType == "group" {
-	// 	writer.WriteField("caption", "@"+chatFrom.Username)
-	// }
+	if data.ChatType == "group" {
+		writer.WriteField("caption", "@"+data.Username)
+	}
 
 	part, _ := writer.CreateFormFile("photo", filepath.Base(path))
 	io.Copy(part, file)
 
 	writer.Close()
 
-	req, _ := http.NewRequest("GET", uri, payload)
+	url := getApiURL("sendPhoto")
+	req, _ := http.NewRequest("GET", url, payload)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		log.Panic(err)
+		return err
 	}
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Panic(err)
+		return err
 	}
 
 	var status structs.Status
 
 	err = json.Unmarshal(body, &status)
 	if err != nil {
-		log.Panic(err)
+		return err
 	}
 
-	if status.Ok == false {
-		log.Panic(string(body))
+	if status.Ok {
+		log.Println("SendPhoto OK")
+		return nil
 	}
 
-	log.Println("SendPhoto OK")
+	return errors.New(string(body))
 }
 
-func SendMessageWithReplyMarkup(chatId int, message string, replyMark []structs.ButtonCallback) {
-	uri := API_URL + "/sendMessage"
-
+func SendMessageWithReplyMarkup(data structs.DataTele, replyMark []structs.ButtonCallback) error {
 	var markup structs.BodyReplyMarkup
 	markup.ReplyMarkup.InlineKeyboard = append(markup.ReplyMarkup.InlineKeyboard, replyMark)
 	marshalled, err := json.Marshal(markup)
+	if err != nil {
+		return err
+	}
 
-	req, err := http.NewRequest("GET", uri, bytes.NewReader(marshalled))
+	url := getApiURL("sendMessage")
+	req, err := http.NewRequest("GET", url, bytes.NewReader(marshalled))
 	req.Header.Add("Content-Type", "application/json")
 	if err != nil {
-		log.Println(err)
-		return
+		return err
 	}
-	// if chatType == "group" {
-	// 	message = message + "\n@" + chatFrom.Username
-	// }
+
+	message := data.ReplyMessage
+	if data.ChatType == "group" {
+		message += "\n@" + data.Username
+	}
 
 	q := req.URL.Query()
-	q.Add("chat_id", strconv.Itoa(chatId))
+	q.Add("chat_id", strconv.Itoa(data.ChatId))
 	q.Add("text", message)
 	q.Add("parse_mode", "html")
 
@@ -155,25 +164,103 @@ func SendMessageWithReplyMarkup(chatId int, message string, replyMark []structs.
 
 	res, err := client.Do(req)
 	if err != nil {
-		log.Panic(err)
+		return err
 	}
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Panic(err)
+		return err
 	}
 
 	var status structs.Status
 
 	err = json.Unmarshal(body, &status)
 	if err != nil {
+		return err
+	}
+
+	if status.Ok {
+		log.Println("SendMessageWithReplyMarkup OK")
+		return nil
+	}
+
+	return errors.New(string(body))
+}
+
+func SetTypingAction(data structs.DataTele) {
+	chatId := data.ChatId
+
+	url := getApiURL("sendChatAction")
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	q := req.URL.Query()
+	q.Add("chat_id", strconv.Itoa(chatId))
+	q.Add("action", "typing")
+
+	req.URL.RawQuery = q.Encode()
+
+	client := &http.Client{}
+
+	res, err := client.Do(req)
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+
+	if err != nil {
 		log.Panic(err)
 	}
 
-	if status.Ok == false {
-		log.Panic(string(body))
+	if body != nil {
+		log.Println("SetTypingAction OK")
+	}
+}
+
+func GetBotCommands() structs.BotCommands {
+	url := getApiURL("getMyCommands")
+	req, err := http.NewRequest("GET", url, nil)
+
+	if err != nil {
+		log.Panic(err)
 	}
 
-	log.Println("SendMessageWithReplyMarkup OK")
+	client := &http.Client{}
+
+	res, err := client.Do(req)
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	var botCommands structs.BotCommands
+
+	err = json.Unmarshal(body, &botCommands)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	if botCommands.Ok == false {
+		log.Fatalln(string(body))
+	}
+
+	log.Println("GetBotCommands OK")
+	return botCommands
 }

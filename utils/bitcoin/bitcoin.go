@@ -4,78 +4,87 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
-	"zeril-bot/utils/channel"
 	"zeril-bot/utils/structs"
+	"zeril-bot/utils/telegram"
 
 	"github.com/leekchan/accounting"
 )
 
-func SendBitcoinPrice(chatId int) {
+func SendBitcoinPrice(data structs.DataTele) error {
 	acUsd := accounting.Accounting{Symbol: "$", Precision: 2}
 	acVnd := accounting.Accounting{Symbol: "", Precision: 0, Thousand: "."}
 
-	btc := getBitcoinPrice()
-	p, _ := strconv.ParseFloat(btc.Price, 64)
-	usd := acUsd.FormatMoney(p)
+	btc, err := getBitcoinPrice()
+	if err != nil {
+		return err
+	}
 
-	v := exchangeUsdToVnd(p)
-	vnd := acVnd.FormatMoney(v) + " đ"
+	p, err := strconv.ParseFloat(btc.Price, 64)
+	if err != nil {
+		return err
+	}
+
+	usd := acUsd.FormatMoney(p)
+	v, err := exchangeUsdToVnd(p)
+	if err != nil {
+		return err
+	}
+
+	vnd := acVnd.FormatMoney(*v) + " đ"
 
 	message := fmt.Sprintf("1 Bitcoin = %s (<b>%s</b>)", usd, vnd)
 
-	channel.SendMessage(chatId, message)
+	data.ReplyMessage = message
+
+	return telegram.SendMessage(data)
 }
 
-func getBitcoinPrice() structs.Btc {
+func getBitcoinPrice() (*structs.Btc, error) {
 	res, err := http.Get("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT")
-
 	if err != nil {
-		log.Panic(err)
+		return nil, err
 	}
 
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
-
 	if err != nil {
-		log.Panic(err)
+		return nil, err
 	}
 
 	var data structs.Btc
 
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		log.Panic(err)
+		return nil, err
 	}
 
-	return data
+	return &data, nil
 }
 
-func exchangeUsdToVnd(p float64) float64 {
+func exchangeUsdToVnd(p float64) (*float64, error) {
 	price := fmt.Sprintf("%.2f", p)
-	res, err := http.Get("https://api.exchangerate.host/convert?from=USD&to=VND&amount=" + price)
 
+	res, err := http.Get("https://api.exchangerate.host/convert?from=USD&to=VND&amount=" + price)
 	if err != nil {
-		log.Panic(err)
+		return nil, err
 	}
 
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
-
 	if err != nil {
-		log.Panic(err)
+		return nil, err
 	}
 
 	var data structs.Exchange
 
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		log.Panic(err)
+		return nil, err
 	}
 
-	return data.Result
+	return &data.Result, nil
 }

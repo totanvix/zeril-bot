@@ -3,20 +3,20 @@ package kqxs
 import (
 	"fmt"
 	"strings"
-	"zeril-bot/utils/channel"
 	"zeril-bot/utils/structs"
+	"zeril-bot/utils/telegram"
 
 	"github.com/mmcdole/gofeed"
 )
 
-func Send(chatId int, text string) {
+func Send(data structs.DataTele) error {
+	text := data.RawMessage
 	text = strings.TrimSpace(text)
 	arr := strings.Fields(text)
 	args := arr[1:]
 
 	if len(args) != 1 {
-		SendSuggest(chatId, args)
-		return
+		return SendSuggest(data)
 	}
 
 	zone := text[6:]
@@ -34,14 +34,15 @@ func Send(chatId int, text string) {
 			message = strings.Replace(message, "ĐB:", "\n\nĐB:", -1)
 		}
 
-		channel.SendMessage(chatId, feed.Items[0].Title+message)
+		data.ReplyMessage = feed.Items[0].Title + message
+		return telegram.SendMessage(data)
 	default:
-		channel.SendMessage(chatId, "Tôi không hiểu câu lệnh của bạn !!!")
+		data.ReplyMessage = "Tôi không hiểu câu lệnh của bạn !!!"
+		return telegram.SendMessage(data)
 	}
-
 }
 
-func SendSuggest(chatId int, args []string) {
+func SendSuggest(data structs.DataTele) error {
 	var buttons []structs.ButtonCallback
 	var btn1, btn2, btn3 structs.ButtonCallback
 
@@ -58,8 +59,7 @@ func SendSuggest(chatId int, args []string) {
 	buttons = append(buttons, btn2)
 	buttons = append(buttons, btn3)
 
-	if len(args) == 0 {
-		channel.SendMessageWithReplyMarkup(chatId, "Hãy chọn khu vực muốn xem kết quả xổ số", buttons)
-		return
-	}
+	data.ReplyMessage = "Hãy chọn khu vực muốn xem kết quả xổ số"
+	return telegram.SendMessageWithReplyMarkup(data, buttons)
+
 }
