@@ -1,9 +1,11 @@
 package bot
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"zeril-bot/utils/bitcoin"
 	"zeril-bot/utils/kqxs"
@@ -42,13 +44,17 @@ func (b Bot) ResolveHook() error {
 		go b.resolveCallbackCommand()
 	}
 
-	for r := range b.rCh {
-		if r.err != nil {
+	for {
+		select {
+		case r, ok := <-b.rCh:
+			if !ok {
+				return nil
+			}
 			return r.err
+		case <-time.After(10 * time.Second):
+			return errors.New("Timeout")
 		}
 	}
-
-	return nil
 }
 
 func (b Bot) setTypingAction() {
