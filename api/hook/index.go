@@ -18,6 +18,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	res := make(map[string]string)
 
 	err = bot.ResolveHook()
+
 	if err != nil {
 		res["status"] = "ERROR"
 		res["code"] = "internal_error"

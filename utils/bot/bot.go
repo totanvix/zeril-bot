@@ -82,6 +82,7 @@ func (b Bot) resolveCommand() error {
 
 	defer func() {
 		b.rCh <- rChannel{err: err}
+		close(b.rCh)
 	}()
 
 	data := b.getTelegramData()
