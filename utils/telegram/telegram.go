@@ -188,14 +188,13 @@ func SendMessageWithReplyMarkup(data structs.DataTele, replyMark []structs.Butto
 	return errors.New(string(body))
 }
 
-func SetTypingAction(data structs.DataTele) {
+func SetTypingAction(data structs.DataTele) error {
 	chatId := data.ChatId
 
 	url := getApiURL("sendChatAction")
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Println(err)
-		return
+		return err
 	}
 
 	q := req.URL.Query()
@@ -209,8 +208,7 @@ func SetTypingAction(data structs.DataTele) {
 	res, err := client.Do(req)
 
 	if err != nil {
-		log.Println(err)
-		return
+		return err
 	}
 
 	defer res.Body.Close()
@@ -218,12 +216,14 @@ func SetTypingAction(data structs.DataTele) {
 	body, err := ioutil.ReadAll(res.Body)
 
 	if err != nil {
-		log.Panic(err)
+		return err
 	}
 
 	if body != nil {
 		log.Println("SetTypingAction OK")
 	}
+
+	return nil
 }
 
 func GetBotCommands() structs.BotCommands {

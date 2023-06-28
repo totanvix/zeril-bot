@@ -18,21 +18,21 @@ import (
 )
 
 type Bot struct {
-	HookData  structs.HookData
-	typingCh  chan struct{}
-	commandCh chan error
+	HookData structs.HookData
+	rCh      chan rChannel
+}
+
+type rChannel struct {
+	err error
 }
 
 func NewBot(hookData structs.HookData) *Bot {
-	tCh := make(chan struct{})
-	commandCh := make(chan error)
+	ch := make(chan rChannel, 2)
 
-	return &Bot{hookData, tCh, commandCh}
+	return &Bot{HookData: hookData, rCh: ch}
 }
 
 func (b Bot) ResolveHook() error {
-	var err error
-
 	go b.setTypingAction()
 
 	switch {
@@ -42,19 +42,30 @@ func (b Bot) ResolveHook() error {
 		go b.resolveCallbackCommand()
 	}
 
-	// to do refactor
-	<-b.typingCh
-	err = <-b.commandCh
+	for r := range b.rCh {
+		if r.err != nil {
+			return r.err
+		}
+	}
 
-	return err
+	return nil
+}
+
+func (b Bot) setTypingAction() {
+	data := b.getTelegramData()
+	rawMessage := b.getRawMessage()
+
+	log.Printf("Yêu cầu từ bạn %s: %s", data.FirstName, rawMessage)
+
+	err := telegram.SetTypingAction(data)
+
+	defer func() {
+		b.rCh <- rChannel{err: err}
+	}()
 }
 
 func (b Bot) getTelegramData() structs.DataTele {
-	data := b.HookData
 	rawMessage := b.getRawMessage()
-	name := data.Message.From.FirstName
-
-	log.Printf("Yêu cầu từ bạn %s: %s", name, rawMessage)
 
 	return structs.DataTele{
 		ChatId:     b.getChatId(),
@@ -70,7 +81,7 @@ func (b Bot) resolveCommand() error {
 	var err error
 
 	defer func() {
-		b.commandCh <- err
+		b.rCh <- rChannel{err: err}
 	}()
 
 	data := b.getTelegramData()
@@ -109,7 +120,8 @@ func (b Bot) resolveCallbackCommand() error {
 	var err error
 
 	defer func() {
-		b.commandCh <- err
+		b.rCh <- rChannel{err: err}
+		close(b.rCh)
 	}()
 
 	data := b.getTelegramData()
@@ -179,13 +191,6 @@ func (b Bot) getFirstName() string {
 		return b.HookData.CallbackQuery.Message.From.FirstName
 	}
 	return b.HookData.Message.From.FirstName
-}
-
-func (b Bot) setTypingAction() {
-	defer close(b.typingCh)
-
-	data := b.getTelegramData()
-	telegram.SetTypingAction(data)
 }
 
 func (b Bot) sendStartMessage(data structs.DataTele) error {
