@@ -47,10 +47,9 @@ func (b Bot) ResolveHook() error {
 	for {
 		select {
 		case r, ok := <-b.rCh:
-			if !ok {
-				return nil
+			if !ok || r.err != nil {
+				return r.err
 			}
-			return r.err
 		case <-time.After(10 * time.Second):
 			return errors.New("Timeout")
 		}
