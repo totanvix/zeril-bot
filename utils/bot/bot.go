@@ -28,9 +28,10 @@ type rChannel struct {
 	err error
 }
 
-func NewBot(hookData structs.HookData) *Bot {
-	ch := make(chan rChannel, 2)
+const numberOfCh = 2
 
+func NewBot(hookData structs.HookData) *Bot {
+	ch := make(chan rChannel, numberOfCh)
 	return &Bot{HookData: hookData, rCh: ch}
 }
 
@@ -44,16 +45,20 @@ func (b Bot) ResolveHook() error {
 		go b.resolveCallbackCommand()
 	}
 
-	for {
+	for i := 0; i < numberOfCh; i++ {
 		select {
-		case r, ok := <-b.rCh:
-			if !ok || r.err != nil {
+		case r := <-b.rCh:
+			if r.err != nil {
 				return r.err
 			}
 		case <-time.After(10 * time.Second):
 			return errors.New("Timeout")
 		}
 	}
+
+	close(b.rCh)
+
+	return nil
 }
 
 func (b Bot) setTypingAction() {
@@ -87,7 +92,6 @@ func (b Bot) resolveCommand() error {
 
 	defer func() {
 		b.rCh <- rChannel{err: err}
-		close(b.rCh)
 	}()
 
 	data := b.getTelegramData()
