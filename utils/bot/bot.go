@@ -211,7 +211,11 @@ func (b Bot) sendStartMessage(data structs.DataTele) error {
 
 func (b Bot) sendHelpMessage(data structs.DataTele) error {
 	messages := ""
-	botCommands := b.getBotCommands()
+	botCommands, err := b.getBotCommands()
+
+	if err != nil {
+		return err
+	}
 
 	for _, command := range botCommands.Result {
 		messages += fmt.Sprintf("<code>/%s</code> - %s\n\n", command.Command, command.Description)
@@ -222,7 +226,7 @@ func (b Bot) sendHelpMessage(data structs.DataTele) error {
 	return telegram.SendMessage(data)
 }
 
-func (b Bot) getBotCommands() structs.BotCommands {
+func (b Bot) getBotCommands() (*structs.BotCommands, error) {
 	return telegram.GetBotCommands()
 }
 

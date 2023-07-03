@@ -17,7 +17,8 @@ func Recoverer(next http.Handler) http.Handler {
 				w.WriteHeader(http.StatusOK)
 
 				resp["status"] = "ERROR"
-				resp["message"] = rvr.(string)
+				resp["code"] = "internal_error"
+				resp["message"] = "Something went wrong"
 				jsonResp, _ := json.Marshal(resp)
 
 				logEntry := middleware.GetLogEntry(r)

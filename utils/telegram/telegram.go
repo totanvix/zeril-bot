@@ -226,12 +226,12 @@ func SetTypingAction(data structs.DataTele) error {
 	return nil
 }
 
-func GetBotCommands() structs.BotCommands {
+func GetBotCommands() (*structs.BotCommands, error) {
 	url := getApiURL("getMyCommands")
 	req, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
-		log.Panic(err)
+		return nil, err
 	}
 
 	client := &http.Client{}
@@ -239,7 +239,7 @@ func GetBotCommands() structs.BotCommands {
 	res, err := client.Do(req)
 
 	if err != nil {
-		log.Panic(err)
+		return nil, err
 	}
 
 	defer res.Body.Close()
@@ -247,20 +247,21 @@ func GetBotCommands() structs.BotCommands {
 	body, err := ioutil.ReadAll(res.Body)
 
 	if err != nil {
-		log.Panic(err)
+		return nil, err
 	}
 
 	var botCommands structs.BotCommands
 
 	err = json.Unmarshal(body, &botCommands)
 	if err != nil {
-		log.Panic(err)
+		return nil, err
 	}
 
-	if botCommands.Ok == false {
-		log.Fatalln(string(body))
+	if botCommands.Ok {
+		log.Println("GetBotCommands OK")
+
+		return &botCommands, nil
 	}
 
-	log.Println("GetBotCommands OK")
-	return botCommands
+	return nil, errors.New(string(body))
 }
