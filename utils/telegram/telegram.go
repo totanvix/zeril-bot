@@ -110,8 +110,7 @@ func (t Telegram) SendPhoto(data structs.DataTele, path string) error {
 	req, _ := http.NewRequest("GET", url, payload)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
-	client := &http.Client{}
-	res, err := client.Do(req)
+	res, err := t.client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -164,9 +163,7 @@ func (t Telegram) SendMessageWithReplyMarkup(data structs.DataTele, replyMark []
 
 	req.URL.RawQuery = q.Encode()
 
-	client := &http.Client{}
-
-	res, err := client.Do(req)
+	res, err := t.client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -192,7 +189,7 @@ func (t Telegram) SendMessageWithReplyMarkup(data structs.DataTele, replyMark []
 	return errors.New(string(body))
 }
 
-func SetTypingAction(data structs.DataTele) error {
+func (t Telegram) SetTypingAction(data structs.DataTele) error {
 	chatId := data.ChatId
 
 	url := getApiURL("sendChatAction")
@@ -207,10 +204,7 @@ func SetTypingAction(data structs.DataTele) error {
 
 	req.URL.RawQuery = q.Encode()
 
-	client := &http.Client{}
-
-	res, err := client.Do(req)
-
+	res, err := t.client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -218,7 +212,6 @@ func SetTypingAction(data structs.DataTele) error {
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
-
 	if err != nil {
 		return err
 	}
@@ -230,7 +223,7 @@ func SetTypingAction(data structs.DataTele) error {
 	return nil
 }
 
-func GetBotCommands() (*structs.BotCommands, error) {
+func (t Telegram) GetBotCommands() (*structs.BotCommands, error) {
 	url := getApiURL("getMyCommands")
 	req, err := http.NewRequest("GET", url, nil)
 
@@ -238,10 +231,7 @@ func GetBotCommands() (*structs.BotCommands, error) {
 		return nil, err
 	}
 
-	client := &http.Client{}
-
-	res, err := client.Do(req)
-
+	res, err := t.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -249,7 +239,6 @@ func GetBotCommands() (*structs.BotCommands, error) {
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
-
 	if err != nil {
 		return nil, err
 	}

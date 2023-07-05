@@ -59,7 +59,7 @@ func (b Bot) setTypingAction() {
 
 	log.Printf("Yêu cầu từ bạn %s: %s", data.FirstName, rawMessage)
 
-	err := telegram.SetTypingAction(data)
+	err := b.Telegram.SetTypingAction(data)
 
 	defer func() {
 		b.rCh <- rChannel{err: err}
@@ -195,5 +195,5 @@ func (b Bot) getFirstName() string {
 }
 
 func (b Bot) getBotCommands() (*structs.BotCommands, error) {
-	return telegram.GetBotCommands()
+	return b.Telegram.GetBotCommands()
 }
