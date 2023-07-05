@@ -2,26 +2,12 @@ package quote
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"zeril-bot/utils/structs"
-	"zeril-bot/utils/telegram"
 )
 
-func SendAQuote(data structs.DataTele) error {
-	quote, err := getAQuote()
-	if err != nil {
-		return err
-	}
-
-	quoteFormat := fmt.Sprintf("&quot;%s&quot; - <b>%s</b>", quote.Quote, quote.Author)
-	data.ReplyMessage = quoteFormat
-
-	return telegram.SendMessage(data)
-}
-
-func getAQuote() (*structs.QuoteData, error) {
+func GetAQuote() (*structs.QuoteData, error) {
 	res, err := http.Get("https://zenquotes.io/api/random")
 	if err != nil {
 		return nil, err

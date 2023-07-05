@@ -15,7 +15,13 @@ import (
 	"zeril-bot/utils/structs"
 )
 
-var API_URL string = "https://api.telegram.org/bot" + os.Getenv("TELE_BOT_TOKEN")
+type Telegram struct {
+	client *http.Client
+}
+
+func New(http *http.Client) *Telegram {
+	return &Telegram{http}
+}
 
 func getApiURL(t string) string {
 	url := "https://api.telegram.org/bot" + os.Getenv("TELE_BOT_TOKEN")
@@ -34,7 +40,7 @@ func getApiURL(t string) string {
 	}
 }
 
-func SendMessage(data structs.DataTele) error {
+func (t Telegram) SendMessage(data structs.DataTele) error {
 	message := data.ReplyMessage
 	if data.ChatType == "group" {
 		message += "\n@" + data.Username
@@ -54,9 +60,7 @@ func SendMessage(data structs.DataTele) error {
 
 	req.URL.RawQuery = q.Encode()
 
-	client := &http.Client{}
-
-	res, err := client.Do(req)
+	res, err := t.client.Do(req)
 
 	if err != nil {
 		return err
@@ -85,7 +89,7 @@ func SendMessage(data structs.DataTele) error {
 	return errors.New(string(body))
 }
 
-func SendPhoto(data structs.DataTele, path string) error {
+func (t Telegram) SendPhoto(data structs.DataTele, path string) error {
 	file, _ := os.Open(path)
 	defer file.Close()
 
@@ -133,7 +137,7 @@ func SendPhoto(data structs.DataTele, path string) error {
 	return errors.New(string(body))
 }
 
-func SendMessageWithReplyMarkup(data structs.DataTele, replyMark []structs.ButtonCallback) error {
+func (t Telegram) SendMessageWithReplyMarkup(data structs.DataTele, replyMark []structs.ButtonCallback) error {
 	var markup structs.BodyReplyMarkup
 	markup.ReplyMarkup.InlineKeyboard = append(markup.ReplyMarkup.InlineKeyboard, replyMark)
 	marshalled, err := json.Marshal(markup)

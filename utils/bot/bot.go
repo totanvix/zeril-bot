@@ -2,26 +2,18 @@ package bot
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"strings"
 	"time"
 
-	"zeril-bot/utils/bitcoin"
-	"zeril-bot/utils/kqxs"
-	"zeril-bot/utils/lunar"
-	"zeril-bot/utils/qr"
-	"zeril-bot/utils/quote"
-	"zeril-bot/utils/random"
-	"zeril-bot/utils/shortener"
 	"zeril-bot/utils/structs"
 	"zeril-bot/utils/telegram"
-	"zeril-bot/utils/weather"
 )
 
 type Bot struct {
 	HookData structs.HookData
 	rCh      chan rChannel
+	Telegram *telegram.Telegram
 }
 
 type rChannel struct {
@@ -30,9 +22,9 @@ type rChannel struct {
 
 const numberOfCh = 2
 
-func NewBot(hookData structs.HookData) *Bot {
+func NewBot(telegram *telegram.Telegram, hookData structs.HookData) *Bot {
 	ch := make(chan rChannel, numberOfCh)
-	return &Bot{HookData: hookData, rCh: ch}
+	return &Bot{Telegram: telegram, HookData: hookData, rCh: ch}
 }
 
 func (b Bot) ResolveHook() error {
@@ -102,23 +94,23 @@ func (b Bot) resolveCommand() error {
 	case "/help", "/help@zerill_bot":
 		err = b.sendHelpMessage(data)
 	case "/quote", "/quote@zerill_bot":
-		err = quote.SendAQuote(data)
+		err = b.sendAQuote(data)
 	case "/groupid", "/groupid@zerill_bot":
 		err = b.sendGroupId(data)
 	case "/lunar", "/lunar@zerill_bot":
-		err = lunar.SendLunarDateNow(data)
+		err = b.sendLunarDateNow(data)
 	case "/weather", "/weather@zerill_bot":
-		err = weather.SendForecastOfWeather(data)
+		err = b.sendForecastOfWeather(data)
 	case "/bitcoin", "/bitcoin@zerill_bot":
-		err = bitcoin.SendBitcoinPrice(data)
+		err = b.sendBitcoinPrice(data)
 	case "/qr", "/qr@zerill_bot":
-		err = qr.SendQRImage(data)
+		err = b.sendQRImage(data)
 	case "/random", "/random@zerill_bot":
-		err = random.RandomElements(data)
+		err = b.sendSelectedElement(data)
 	case "/kqxs", "/kqxs@zerill_bot":
-		err = kqxs.Send(data)
+		err = b.sendLottery(data)
 	case "/shortener", "/shortener@zerill_bot":
-		shortener.Generate(data)
+		err = b.generateShortenerURL(data)
 	default:
 		err = b.invalidCommand(data)
 	}
@@ -131,16 +123,15 @@ func (b Bot) resolveCallbackCommand() error {
 
 	defer func() {
 		b.rCh <- rChannel{err: err}
-		close(b.rCh)
 	}()
 
 	data := b.getTelegramData()
 
 	switch data.Command {
 	case "/weather":
-		err = weather.SendForecastOfWeather(data)
+		err = b.sendForecastOfWeather(data)
 	case "/kqxs":
-		err = kqxs.Send(data)
+		err = b.sendLottery(data)
 	}
 
 	return err
@@ -203,44 +194,6 @@ func (b Bot) getFirstName() string {
 	return b.HookData.Message.From.FirstName
 }
 
-func (b Bot) sendStartMessage(data structs.DataTele) error {
-	message := fmt.Sprintf("Xin chào %s \n\nGõ <code>/help</code> để xem danh sách các lệnh mà bot hỗ trợ nhé.\n\nBạn cũng có thể truy cập nhanh các chức năng bằng cách nhấn nút Menu bên dưới.", data.FirstName)
-	data.ReplyMessage = message
-	return telegram.SendMessage(data)
-}
-
-func (b Bot) sendHelpMessage(data structs.DataTele) error {
-	messages := ""
-	botCommands, err := b.getBotCommands()
-
-	if err != nil {
-		return err
-	}
-
-	for _, command := range botCommands.Result {
-		messages += fmt.Sprintf("<code>/%s</code> - %s\n\n", command.Command, command.Description)
-	}
-
-	data.ReplyMessage = messages
-
-	return telegram.SendMessage(data)
-}
-
 func (b Bot) getBotCommands() (*structs.BotCommands, error) {
 	return telegram.GetBotCommands()
-}
-
-func (b Bot) sendGroupId(data structs.DataTele) error {
-	if data.ChatType == "group" {
-		data.ReplyMessage = fmt.Sprintf("Group ID: <code>%v</code>", data.ChatId)
-	} else {
-		data.ReplyMessage = "Không tìm thấy nhóm, bạn cần thêm bot vào nhóm trước khi thực hiện lệnh này !"
-	}
-
-	return telegram.SendMessage(data)
-}
-
-func (b Bot) invalidCommand(data structs.DataTele) error {
-	data.ReplyMessage = "Tôi không hiểu câu lệnh của bạn !!!"
-	return telegram.SendMessage(data)
 }

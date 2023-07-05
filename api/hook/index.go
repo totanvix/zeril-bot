@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"zeril-bot/utils/bot"
 	"zeril-bot/utils/structs"
+	"zeril-bot/utils/telegram"
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
@@ -14,7 +15,9 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	bot := bot.NewBot(data)
+	telegram := telegram.New(&http.Client{})
+
+	bot := bot.NewBot(telegram, data)
 	res := make(map[string]string)
 
 	err = bot.ResolveHook()
