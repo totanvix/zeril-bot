@@ -15,29 +15,16 @@ import (
 	"zeril-bot/utils/structs"
 )
 
+const BASE_URL = "https://api.telegram.org"
+
 type Telegram struct {
-	client *http.Client
+	client   *http.Client
+	endpoint string
 }
 
-func New(http *http.Client) *Telegram {
-	return &Telegram{http}
-}
-
-func getApiURL(t string) string {
-	url := "https://api.telegram.org/bot" + os.Getenv("TELE_BOT_TOKEN")
-
-	switch t {
-	case "sendMessage":
-		return url + "/sendMessage"
-	case "sendPhoto":
-		return url + "/sendPhoto"
-	case "sendChatAction":
-		return url + "/sendChatAction"
-	case "getMyCommands":
-		return url + "/getMyCommands"
-	default:
-		return ""
-	}
+func New(http *http.Client, baseUrl string) *Telegram {
+	endpoint := baseUrl + "/bot" + os.Getenv("TELE_BOT_TOKEN")
+	return &Telegram{client: http, endpoint: endpoint}
 }
 
 func (t Telegram) SendMessage(data structs.DataTele) error {
@@ -46,9 +33,8 @@ func (t Telegram) SendMessage(data structs.DataTele) error {
 		message += "\n@" + data.Username
 	}
 
-	url := getApiURL("sendMessage")
+	url := t.endpoint + "/sendMessage"
 	req, err := http.NewRequest("GET", url, nil)
-
 	if err != nil {
 		return err
 	}
@@ -106,7 +92,7 @@ func (t Telegram) SendPhoto(data structs.DataTele, path string) error {
 
 	writer.Close()
 
-	url := getApiURL("sendPhoto")
+	url := t.endpoint + "/sendPhoto"
 	req, _ := http.NewRequest("GET", url, payload)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
@@ -144,7 +130,7 @@ func (t Telegram) SendMessageWithReplyMarkup(data structs.DataTele, replyMark []
 		return err
 	}
 
-	url := getApiURL("sendMessage")
+	url := t.endpoint + "/sendMessage"
 	req, err := http.NewRequest("GET", url, bytes.NewReader(marshalled))
 	req.Header.Add("Content-Type", "application/json")
 	if err != nil {
@@ -192,7 +178,7 @@ func (t Telegram) SendMessageWithReplyMarkup(data structs.DataTele, replyMark []
 func (t Telegram) SetTypingAction(data structs.DataTele) error {
 	chatId := data.ChatId
 
-	url := getApiURL("sendChatAction")
+	url := t.endpoint + "/sendChatAction"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return err
@@ -224,7 +210,7 @@ func (t Telegram) SetTypingAction(data structs.DataTele) error {
 }
 
 func (t Telegram) GetBotCommands() (*structs.BotCommands, error) {
-	url := getApiURL("getMyCommands")
+	url := t.endpoint + "/getMyCommands"
 	req, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {

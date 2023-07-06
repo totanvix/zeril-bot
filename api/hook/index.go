@@ -15,7 +15,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	telegram := telegram.New(&http.Client{})
+	telegram := telegram.New(&http.Client{}, telegram.BASE_URL)
 
 	bot := bot.NewBot(telegram, data)
 	res := make(map[string]string)
