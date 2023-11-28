@@ -18,7 +18,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	res := make(map[string]string)
 
-	if data.Message.Text == "" {
+	if data.CallbackQuery.Data == "" && data.Message.Text == "" {
 		res["status"] = "ERROR"
 		res["message"] = "Ignore hook with chat content not found"
 		request.Response(w, res, http.StatusOK)
