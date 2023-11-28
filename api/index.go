@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"zeril-bot/api/cron"
 	"zeril-bot/api/hook"
 	"zeril-bot/api/url"
 	"zeril-bot/utils/middleware"
@@ -22,6 +23,7 @@ func Handler(wri http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("Hi there !"))
 	})
 	r.Post("/api/hook", hook.Handler)
+	r.Get("/api/cron", cron.Handler)
 	r.Get("/url", url.Handler)
 
 	r.ServeHTTP(wri, req)

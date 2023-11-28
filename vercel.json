@@ -1,16 +1,14 @@
 {
   "routes": [
     {
-      "src": "/url/(.*)",
-      "dest": "/api/url/index.go"
-    },
-    {
-      "src": "/trip/(.*)",
-      "dest": "/api/trip/index.go"
-    },
-    {
       "src": "/(.*)",
       "dest": "/api/index.go"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron",
+      "schedule": "*/5 * * * *"
     }
   ],
   "github": {
