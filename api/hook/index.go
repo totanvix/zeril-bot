@@ -2,7 +2,6 @@ package hook
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"zeril-bot/utils/bot"
 	"zeril-bot/utils/structs"
@@ -16,12 +15,18 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	fmt.Println("Handler")
-	fmt.Println(data)
+	res := make(map[string]string)
+
+	if data.Message.Text == "" {
+		res["status"] = "OK"
+		res["message"] = "Ignore hook with chat content not found"
+		Response(w, res, http.StatusOK)
+		return
+	}
+
 	telegram := telegram.New(&http.Client{}, telegram.BASE_URL)
 
 	bot := bot.NewBot(telegram, data)
-	res := make(map[string]string)
 
 	err = bot.ResolveHook()
 

@@ -2,7 +2,6 @@ package bot
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -88,9 +87,6 @@ func (b Bot) resolveCommand() error {
 	}()
 
 	data := b.getTelegramData()
-
-	fmt.Println("resolveCommand")
-	fmt.Println(data)
 
 	switch data.Command {
 	case "/start", "/start@zerill_bot":
