@@ -2,6 +2,7 @@ package hook
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"zeril-bot/utils/bot"
 	"zeril-bot/utils/structs"
@@ -15,6 +16,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
+	fmt.Println("Handler")
+	fmt.Println(data)
 	telegram := telegram.New(&http.Client{}, telegram.BASE_URL)
 
 	bot := bot.NewBot(telegram, data)
