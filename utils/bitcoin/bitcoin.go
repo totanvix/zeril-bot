@@ -13,7 +13,6 @@ import (
 
 func GetBitcoinPrice() (string, error) {
 	acUsd := accounting.Accounting{Symbol: "$", Precision: 2}
-	acVnd := accounting.Accounting{Symbol: "", Precision: 0, Thousand: "."}
 
 	btc, err := getCurrentPrice()
 	if err != nil {
@@ -26,14 +25,8 @@ func GetBitcoinPrice() (string, error) {
 	}
 
 	usd := acUsd.FormatMoney(p)
-	v, err := exchangeUsdToVnd(p)
-	if err != nil {
-		return "", err
-	}
 
-	vnd := acVnd.FormatMoney(*v) + " đ"
-
-	return fmt.Sprintf("1 Bitcoin = %s (<b>%s</b>)", usd, vnd), nil
+	return fmt.Sprintf("1 Bitcoin = %s", usd), nil
 }
 
 func getCurrentPrice() (*structs.Btc, error) {
@@ -57,29 +50,4 @@ func getCurrentPrice() (*structs.Btc, error) {
 	}
 
 	return &data, nil
-}
-
-func exchangeUsdToVnd(p float64) (*float64, error) {
-	price := fmt.Sprintf("%.2f", p)
-
-	res, err := http.Get("https://api.exchangerate.host/convert?from=USD&to=VND&amount=" + price)
-	if err != nil {
-		return nil, err
-	}
-
-	defer res.Body.Close()
-
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var data structs.Exchange
-
-	err = json.Unmarshal(body, &data)
-	if err != nil {
-		return nil, err
-	}
-
-	return &data.Result, nil
 }
